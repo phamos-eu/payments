@@ -1,0 +1,41 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-03-15 12:45:58.428614",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "show_entries_in_payment_assignment_wizard"
+ ],
+ "fields": [
+  {
+   "fieldname": "show_entries_in_payment_assignment_wizard",
+   "fieldtype": "Select",
+   "label": "Show Entries in Payment Assignment Wizard",
+   "options": "Payment Entry\nBank Transaction\nBoth"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-03-15 12:49:39.431666",
+ "modified_by": "Administrator",
+ "module": "Erpnextfints",
+ "name": "Payment Wizard Setting",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -27,7 +27,7 @@
 </div>
 
 <!-- Payment Entries -->
-{% for payment in payments %}
+{% if optionValue == "Payment Entry" %} {% for payment in payments %}
 <div class="list-row payment-assign-wizard-item" style="height: auto">
   <div class="row">
     <div class="col-sm-2 ellipsis">
@@ -52,4 +52,32 @@
     </div>
   </div>
 </div>
-{% endfor %}
+{% endfor %} {% endif %}
+
+<!-- Bank Transactions -->
+{% if optionValue == "Bank Transaction" %} {% for payment in payments %}
+<div class="list-row payment-assign-wizard-item" style="height: auto">
+  <div class="row">
+    <div class="col-sm-2 ellipsis">
+      <a href="bank-transaction/{{ payment.name }}">{{ payment.name }}</a>
+    </div>
+    <div class="col-sm-2 ellipsis hidden-xs">{{ payment.party }}</div>
+    <div class="col-sm-2 ellipsis">
+      {{ payment.unallocated_amount }} {{ currency }}
+    </div>
+    <div class="col-sm-2 ellipsis">{{ payment.date }}</div>
+    <div class="col-sm-3 ellipsis hidden-xs" style="white-space: normal">
+      {{ payment.description}}
+    </div>
+    <div class="col-sm-1" style="padding-right: 0px">
+      <button
+        class="reconcile_transaction btn btn-default btn-xs center-block"
+        data-name="{{ payment.name }}"
+        style="padding-top: 0px; padding-bottom: 0px"
+      >
+        {{ __("Reconcile") }}
+      </button>
+    </div>
+  </div>
+</div>
+{% endfor %} {% endif %}
