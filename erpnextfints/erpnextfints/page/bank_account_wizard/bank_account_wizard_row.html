@@ -1,19 +1,27 @@
 <div class="list-row bank-account-wizard-item list-xs-height">
-	<div>
-		<div class="clickable-section" data-name={{ name }}>
-			<div class="col-sm-2 ellipsis hidden-xs">
-				{{ party_type }}
+	<div class="row">
+		<div class="col-sm-2">
+			<div class="clickable-section" data-name={{ name }}>
+				<div class="ellipsis hidden-xs">{{ party_type }}</div>
 			</div>
-			<div class="col-sm-2 ellipsis">
-				{{ party }}
+		</div>
+		<div class="col-sm-2">
+			<div class="clickable-section" data-name={{ name }}>
+				<div class="ellipsis">{{ party }}</div>
 			</div>
-			<div class="col-sm-2 ellipsis">
-				{{ sender }}
+		</div>
+		<div class="col-sm-2">
+			<div class="clickable-section" data-name={{ name }}>
+				<div class="ellipsis">{{ sender }}</div>
 			</div>
-			<div class="col-sm-2 ellipsis hidden-xs">
-				{{ bic }}
+		</div>
+		<div class="col-sm-2 hidden-xs">
+			<div class="clickable-section" data-name={{ name }}>
+				<div class="ellipsis">{{ bic }}</div>
 			</div>
-			<div class="col-sm-3 ellipsis hidden-xs">
+		</div>
+		<div class="col-sm-3 hidden-xs">
+			<div class="clickable-section" data-name={{ name }}>
 				<a href="#Form/Payment Entry/{{ name }}">{{ iban }}</a>
 			</div>
 		</div>
@@ -32,4 +40,6 @@
 			<button class="new-bank-account btn btn-default btn-xs center-block" data-name={{ name }} style="max-height: 300px; overflow-y: auto; right: 0px; left: auto;">{{ __("Create") }}</button>
 		</div>
 	</div>
-</div>
+  </div>
+  
+  
