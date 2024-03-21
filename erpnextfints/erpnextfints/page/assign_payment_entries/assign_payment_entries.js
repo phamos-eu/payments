@@ -122,6 +122,7 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 			"posting_date",
 			"due_date",
 			"currency",
+			"paid_amount",
 		];
 	}
 
@@ -210,7 +211,6 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 		// Extract the selected value from "Payment Wizard Setting" doctype
 		const optionValue =
 			selectedOption.message.show_entries_in_payment_assignment_wizard;
-		console.log("option", optionValue);
 
 		const me = this;
 		this.$result.find(".list-row-container").remove();
@@ -220,6 +220,7 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 		let index = 0;
 		let rowHTML;
 		// me.data - list of sales invoice. the below code fetchs all payment entries associated with single sales invoice
+
 		for (const value of me.data) {
 			rowHTML =
 				index % 2 !== 0
@@ -290,23 +291,26 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 
 		// reconcile bank transaction against sales invoice
 		$(me.row).on("click", ".reconcile_transaction", function () {
-			console.log(
-				"sales invoice",
-				me.data.name,
-				"bank_transaction",
-				$(this).attr("data-name")
-			);
-			// frappe.call({
-			// 	method: "erpnextfints.utils.client.add_payment_reference",
-			// 	args: {
-			// 		sales_invoice: me.data.name,
-			// 		payment_entry: $(this).attr("data-name"),
-			// 	},
-			// 	callback(/* r */) {
-			// 		// Refresh page after asignment
-			// 		erpnextfints.tools.assignWizardList.refresh();
-			// 	},
-			// });
+			let vouchers = [];
+
+			vouchers.push({
+				payment_doctype: "Sales Invoice",
+				payment_name: me.data.name,
+				amount: format_currency(me.data.paid_amount, me.data.currency),
+			});
+
+			frappe.call({
+				method:
+					"erpnext.accounts.doctype.bank_reconciliation_tool.bank_reconciliation_tool.reconcile_vouchers",
+				args: {
+					bank_transaction_name: $(this).attr("data-name"),
+					vouchers: vouchers,
+				},
+				callback(/* r */) {
+					// Refresh page after asignment
+					erpnextfints.tools.assignWizardList.refresh();
+				},
+			});
 		});
 	}
 };
