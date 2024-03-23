@@ -9,6 +9,7 @@
  ],
  "fields": [
   {
+   "default": "Payment Entry",
    "fieldname": "show_entries_in_payment_assignment_wizard",
    "fieldtype": "Select",
    "label": "Show Entries in Payment Assignment Wizard",
@@ -18,9 +19,9 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-03-15 12:49:39.431666",
+ "modified": "2024-03-23 21:21:22.923656",
  "modified_by": "Administrator",
- "module": "Erpnextfints",
+ "module": "ERPNextFinTS",
  "name": "Payment Wizard Setting",
  "owner": "Administrator",
  "permissions": [
