@@ -122,3 +122,81 @@ def auto_assign_payments():
         AssignmentController
 
     return AssignmentController().auto_assign_payments()
+
+
+
+# Add sales invoice payment on the specified sales invoice
+@frappe.whitelist()
+def add_sales_invoice_payment(bank_transaction_name, sales_invoice_name):
+    """Create sales invoice payment on sales invoice doctype.
+
+    1, get sales_invoice document based on sales_invoice value
+    2, create new entry on sales invoice payment child table
+    3, save and return the sales invoice document
+    """
+
+    kefiya_setting = frappe.get_single("Payment Wizard Setting")
+    
+    # query to get account
+    result = frappe.db.sql("""
+        SELECT company, default_account
+        FROM `tabMode of Payment Account`
+        WHERE parent = %s
+    """, (kefiya_setting.mode_of_payment,), as_dict=True)
+
+    account = result[0].default_account
+  
+    
+    bank_transaction = frappe.get_doc("Bank Transaction", bank_transaction_name)
+    sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
+    
+    
+    unallocated_amount = bank_transaction.unallocated_amount
+    outstanding_amount = sales_invoice.outstanding_amount
+    paid_amount = 0
+
+    if unallocated_amount >= outstanding_amount:
+        paid_amount = outstanding_amount
+        outstanding_amount = 0
+        
+    else:
+        outstanding_amount = outstanding_amount - unallocated_amount
+        paid_amount = unallocated_amount
+
+
+    sales_invoice_payment = frappe.new_doc("Sales Invoice Payment")
+
+    # Set fields for the Sales Invoice Payment document
+    sales_invoice_payment.update({
+        "mode_of_payment": kefiya_setting.mode_of_payment,
+        "account": account,
+        "amount": paid_amount, 
+        "parent": sales_invoice_name,
+        'parentfield': 'payments',
+        'parenttype': 'Sales Invoice'
+    })
+
+    sales_invoice_payment.insert()
+
+    # Get total paid amount on certain sales invoice
+    paid_amounts = frappe.db.sql("""
+        SELECT SUM(amount) AS total_paid_amount
+        FROM `tabSales Invoice Payment`
+        WHERE parent = %s
+        GROUP BY parent
+    """, (sales_invoice_name,), as_dict=True)
+
+    if  outstanding_amount==0:
+        status = "Paid"
+    else:
+        status = "Partly Paid"
+    
+    total_paid_amount = paid_amounts[0].total_paid_amount
+    sql_query = """
+        UPDATE `tabSales Invoice`
+        SET is_pos = 1, outstanding_amount = %s, paid_amount = %s, status = %s
+        WHERE name = %s
+    """
+    
+    frappe.db.sql(sql_query, (outstanding_amount, total_paid_amount, status, sales_invoice_name))
+    return total_paid_amount

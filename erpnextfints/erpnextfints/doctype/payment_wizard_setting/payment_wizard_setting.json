@@ -5,7 +5,8 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "show_entries_in_payment_assignment_wizard"
+  "show_entries_in_payment_assignment_wizard",
+  "mode_of_payment"
  ],
  "fields": [
   {
@@ -14,12 +15,19 @@
    "fieldtype": "Select",
    "label": "Show Entries in Payment Assignment Wizard",
    "options": "Payment Entry\nBank Transaction\nBoth"
+  },
+  {
+   "default": "Cash",
+   "fieldname": "mode_of_payment",
+   "fieldtype": "Link",
+   "label": "Mode of Payment",
+   "options": "Mode of Payment"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-03-23 21:21:22.923656",
+ "modified": "2024-03-25 21:16:45.756192",
  "modified_by": "Administrator",
  "module": "ERPNextFinTS",
  "name": "Payment Wizard Setting",

@@ -180,6 +180,7 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 			filters = {
 				docstatus: 1,
 				party: customer,
+				unallocated_amount: [">", 0],
 			};
 			order_by = "date";
 		} else {
@@ -291,24 +292,39 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 
 		// reconcile bank transaction against sales invoice
 		$(me.row).on("click", ".reconcile_transaction", function () {
-			let vouchers = [];
-
-			vouchers.push({
-				payment_doctype: "Sales Invoice",
-				payment_name: me.data.name,
-				amount: format_currency(me.data.paid_amount, me.data.currency),
-			});
+			const currency = me.data.currency;
+			const sales_invoice_name = me.data.name;
+			const bank_transaction_name = $(this).attr("data-name");
 
 			frappe.call({
-				method:
-					"erpnext.accounts.doctype.bank_reconciliation_tool.bank_reconciliation_tool.reconcile_vouchers",
+				method: "erpnextfints.utils.client.add_sales_invoice_payment",
 				args: {
-					bank_transaction_name: $(this).attr("data-name"),
-					vouchers: vouchers,
+					bank_transaction_name: bank_transaction_name,
+					sales_invoice_name: sales_invoice_name,
 				},
-				callback(/* r */) {
-					// Refresh page after asignment
-					erpnextfints.tools.assignWizardList.refresh();
+				callback: function (r) {
+					let vouchers = [];
+
+					const paid_amount = r.message;
+
+					vouchers.push({
+						payment_doctype: "Sales Invoice",
+						payment_name: sales_invoice_name,
+						amount: format_currency(paid_amount, currency),
+					});
+
+					frappe.call({
+						method:
+							"erpnext.accounts.doctype.bank_reconciliation_tool.bank_reconciliation_tool.reconcile_vouchers",
+						args: {
+							bank_transaction_name: bank_transaction_name,
+							vouchers: vouchers,
+						},
+						callback(/* r */) {
+							// Refresh page after asignment
+							window.location.reload(false);
+						},
+					});
 				},
 			});
 		});
