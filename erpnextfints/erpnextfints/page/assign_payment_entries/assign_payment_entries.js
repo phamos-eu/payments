@@ -306,7 +306,7 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 					let vouchers = [];
 
 					const paid_amount = r.message;
-
+					console.log("paid amount", paid_amount);
 					vouchers.push({
 						payment_doctype: "Sales Invoice",
 						payment_name: sales_invoice_name,
@@ -322,7 +322,7 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 						},
 						callback(/* r */) {
 							// Refresh page after asignment
-							window.location.reload(false);
+							erpnextfints.tools.assignWizardList.refresh();
 						},
 					});
 				},
