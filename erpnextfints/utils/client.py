@@ -4,6 +4,7 @@
 from __future__ import unicode_literals
 
 import frappe
+from frappe.utils import getdate
 
 
 @frappe.whitelist()
@@ -200,3 +201,37 @@ def add_sales_invoice_payment(bank_transaction_name, sales_invoice_name):
     
     frappe.db.sql(sql_query, (outstanding_amount, total_paid_amount, status, sales_invoice_name))
     return total_paid_amount
+
+
+@frappe.whitelist()
+def remove_sales_invoice_payment(sales_invoice_name):
+   
+    sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
+    total_paid_amount = sales_invoice.paid_amount
+    frappe.db.sql("""
+        DELETE FROM `tabSales Invoice Payment`
+        WHERE parent = %s
+    """, (sales_invoice_name,))
+    
+    status="Draft"
+    today = getdate()
+
+    if sales_invoice.outstanding_amount == 0 and getdate(sales_invoice.due_date) >= today:
+        status = "Unpaid"
+
+    if sales_invoice.outstanding_amount > 0 and getdate(sales_invoice.due_date) >= today:
+        status = "Partly Paid"
+
+    if getdate(sales_invoice.due_date) < today:
+        status = "Overdue"
+
+    sql_query = """
+        UPDATE `tabSales Invoice`
+        SET is_pos = 0, outstanding_amount = %s, paid_amount = %s, status = %s
+        WHERE name = %s
+    """
+    
+    frappe.db.sql(sql_query, (total_paid_amount, 0, status, sales_invoice_name))
+   
+    message = frappe._("{0} unlinked successfully").format(sales_invoice_name)
+    frappe.msgprint(message)
