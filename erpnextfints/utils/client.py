@@ -215,23 +215,23 @@ def remove_sales_invoice_payment(sales_invoice_name):
     
     status="Draft"
     today = getdate()
+    is_pos = 0
 
     if sales_invoice.outstanding_amount == 0 and getdate(sales_invoice.due_date) >= today:
         status = "Unpaid"
 
     if sales_invoice.outstanding_amount > 0 and getdate(sales_invoice.due_date) >= today:
         status = "Partly Paid"
+        is_pos = 1
 
     if getdate(sales_invoice.due_date) < today:
         status = "Overdue"
 
+    
     sql_query = """
         UPDATE `tabSales Invoice`
-        SET is_pos = 0, outstanding_amount = %s, paid_amount = %s, status = %s
+        SET is_pos = %s, outstanding_amount = %s, paid_amount = %s, status = %s
         WHERE name = %s
     """
     
-    frappe.db.sql(sql_query, (total_paid_amount, 0, status, sales_invoice_name))
-   
-    message = frappe._("{0} unlinked successfully").format(sales_invoice_name)
-    frappe.msgprint(message)
+    frappe.db.sql(sql_query, (is_pos, total_paid_amount, 0, status, sales_invoice_name))
