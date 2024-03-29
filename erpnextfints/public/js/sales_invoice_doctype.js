@@ -11,7 +11,7 @@ frappe.ui.form.on("Sales Invoice", {
 						sales_invoice_name: frm.doc.name,
 					},
 					callback(r) {
-						// frappe.msgprint("Custom button clicked!");
+						frm.reload_doc();
 					},
 				});
 			});
