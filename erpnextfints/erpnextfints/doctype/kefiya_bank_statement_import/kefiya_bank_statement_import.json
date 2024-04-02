@@ -50,18 +50,20 @@
    "fetch_from": "bank_account.party",
    "fieldname": "party",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Party"
   },
   {
    "fetch_from": "bank_account.party_type",
    "fieldname": "party_type",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Party Type"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-02 10:47:57.822998",
+ "modified": "2024-04-02 17:11:07.099096",
  "modified_by": "Administrator",
  "module": "ERPNextFinTS",
  "name": "Kefiya Bank Statement Import",
