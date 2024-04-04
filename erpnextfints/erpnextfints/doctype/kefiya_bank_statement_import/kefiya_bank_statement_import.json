@@ -10,6 +10,8 @@
  "field_order": [
   "company",
   "bank_account",
+  "party",
+  "party_type",
   "bank",
   "import_file"
  ],
@@ -17,30 +19,51 @@
   {
    "fieldname": "company",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Company",
-   "options": "Company"
+   "options": "Company",
+   "reqd": 1
   },
   {
    "fieldname": "bank_account",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Bank Account",
-   "options": "Bank Account"
+   "options": "Bank Account",
+   "reqd": 1
   },
   {
+   "fetch_from": "bank_account.bank",
    "fieldname": "bank",
-   "fieldtype": "Link",
+   "fieldtype": "Data",
    "label": "Bank",
-   "options": "Bank"
+   "read_only": 1
   },
   {
    "fieldname": "import_file",
    "fieldtype": "Attach",
-   "label": "Import File"
+   "in_list_view": 1,
+   "label": "Import File",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "bank_account.party",
+   "fieldname": "party",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Party"
+  },
+  {
+   "fetch_from": "bank_account.party_type",
+   "fieldname": "party_type",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Party Type"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-03-30 12:09:01.760764",
+ "modified": "2024-04-02 17:11:07.099096",
  "modified_by": "Administrator",
  "module": "ERPNextFinTS",
  "name": "Kefiya Bank Statement Import",
