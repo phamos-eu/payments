@@ -45,7 +45,7 @@ class KefiyaBankStatementImport(Document):
 			bank_transaction = frappe.new_doc("Bank Transaction")
 			date =  datetime.strptime( row_data[0], '%d.%m.%Y')
 			description = row_data[4]
-			bank_party_iban = row_data[4]
+			bank_party_iban = row_data[5]
 			deposit, withdrawal = self.format_amount(row_data[7])			
 
 			bank_transaction.update({
@@ -55,8 +55,6 @@ class KefiyaBankStatementImport(Document):
 				"bank_account": bank_account,
 				"company": company,
 				"description": description,
-				'party_type': self.party_type,
-				'party': self.party,
 				'bank_party_iban': bank_party_iban,
 				'allocated_amount': 0,
 				'unallocated_amount': abs(withdrawal - deposit)
