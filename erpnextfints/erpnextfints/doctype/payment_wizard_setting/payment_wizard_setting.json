@@ -17,7 +17,6 @@
    "options": "Payment Entry\nBank Transaction\nBoth"
   },
   {
-   "default": "Cash",
    "fieldname": "mode_of_payment",
    "fieldtype": "Link",
    "label": "Mode of Payment",
@@ -27,7 +26,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-03-25 21:16:45.756192",
+ "modified": "2024-04-05 15:40:32.760747",
  "modified_by": "Administrator",
  "module": "ERPNextFinTS",
  "name": "Payment Wizard Setting",
