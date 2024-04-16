@@ -62,6 +62,7 @@ class KefiyaBankStatementImport(Document):
 			date =  datetime.strptime( row_data[0], '%d.%m.%Y')
 			description = row_data[4]
 			bank_party_iban = row_data[5]
+			bank_party_name = row_data[3]
 			deposit, withdrawal = self.format_amount_utf8(row_data[7])			
 
 			bank_transaction.update({
@@ -73,7 +74,8 @@ class KefiyaBankStatementImport(Document):
 				"description": description,
 				'bank_party_iban': bank_party_iban,
 				'allocated_amount': 0,
-				'unallocated_amount': abs(withdrawal - deposit)
+				'unallocated_amount': abs(withdrawal - deposit),
+				"bank_party_name": bank_party_name
 			})
 
 			bank_transaction.insert()
@@ -108,6 +110,7 @@ class KefiyaBankStatementImport(Document):
 			date =  datetime.strptime( row_data[0], '%d.%m.%Y')
 			description = row_data[4].replace('"', '')
 			bank_party_iban = row_data[5].replace('"', '')
+			bank_party_name = row_data[3].replace('"', '')
 			deposit, withdrawal = self.format_amount_iso(row_data[7])			
 
 			bank_transaction.update({
@@ -119,7 +122,8 @@ class KefiyaBankStatementImport(Document):
 				"description": description,
 				'bank_party_iban': bank_party_iban,
 				'allocated_amount': 0,
-				'unallocated_amount': abs(withdrawal - deposit)
+				'unallocated_amount': abs(withdrawal - deposit),
+				"bank_party_name":  bank_party_name
 			})
 
 			bank_transaction.insert()

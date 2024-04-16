@@ -81,10 +81,10 @@ erpnextfints.tools.bankWizard = class BankWizard {
 			method: "erpnextfints.utils.client.get_missing_bank_accounts",
 			args: {},
 			callback(r) {
-				frappe.model.with_doctype("Payment Entry", () => {
+				frappe.model.with_doctype("Bank Transaction", () => {
 					erpnextfints.tools.bankWizardList = new erpnextfints.tools.bankWizardTool({
 						parent: me.parent,
-						doctype: "Payment Entry",
+						doctype: "Bank Transaction",
 						page_title: __(me.page.title),
 						ref_items: r.message
 					});
@@ -108,9 +108,7 @@ erpnextfints.tools.bankWizardTool = class BankWizardTool extends frappe.views.Ba
 		super.setup_defaults();
 		// this.page_title = __("Bank Reconciliation");
 		// this.doctype = 'Payment Entry';
-		this.fields = ['party_type', 'party', 'sender', 'iban', 'bic',
-			'paid_from', 'paid_to', 'payment_type'
-		];
+		this.fields = ['party_type', 'party', 'bank_party_name', 'bank_party_iban'];
 	}
 
 	setup_view() {
@@ -131,7 +129,7 @@ erpnextfints.tools.bankWizardTool = class BankWizardTool extends frappe.views.Ba
 
 	before_refresh() {
 		// erpnextfints.tools.bankWizardObj.clear_page_content()
-		frappe.model.with_doctype("Payment Entry", () => {
+		frappe.model.with_doctype("Bank Transaction", () => {
 			frappe.call({
 				method: "erpnextfints.utils.client.get_missing_bank_accounts",
 				args: {},
@@ -151,13 +149,13 @@ erpnextfints.tools.bankWizardTool = class BankWizardTool extends frappe.views.Ba
 		const me = this;
 		me.data = me.ref_items;
 		// Add Query filter to party_type field
-		me.page.fields_dict.party_type.df.get_query = function() {
-			return {
-				filters: {
-					"name": ["in", ["Customer", "Supplier"]]
-				}
-			};
-		};
+		// me.page.fields_dict.party_type.df.get_query = function() {
+		// 	return {
+		// 		filters: {
+		// 			"name": ["in", ["Customer", "Supplier"]]
+		// 		}
+		// 	};
+		// };
 		me.page.btn_secondary.click(function(/* e */) {
 			window.location.reload(false);
 		});

@@ -54,6 +54,7 @@ erpnextfints.iban_tools = {
 			"AT", // Austria
 			"LI", // Liechtenstein
 		];
+		
 		var ibanCountryCode = iban.substring(0, 2).toUpperCase();
 		if(supported_countries.indexOf(ibanCountryCode) > -1){
 			var url = "https://openiban.com/validate/" +
@@ -92,7 +93,9 @@ erpnextfints.iban_tools = {
 		});
 	},
 	setPartyBankAccount: function(frm, callback) {
-		erpnextfints.iban_tools.getBankDetailsByIBAN(frm.doc.iban, function(data) {
+		erpnextfints.iban_tools.getBankDetailsByIBAN(frm.doc.bank_party_iban
+			, function(data) {
+			
 			if (data.checkResults.bankCode) {
 				frappe.call({
 					method: "frappe.client.get_list",
@@ -118,33 +121,40 @@ erpnextfints.iban_tools = {
 									fieldname: 'iban',
 									fieldtype: 'Data',
 									read_only: 1,
-									default: frm.doc.iban,
+									default: frm.doc.bank_party_iban,
 								}, {
 									label: 'BIC',
 									fieldname: 'bic',
 									fieldtype: 'Data',
 									read_only: 1,
-									default: frm.doc.bic,
+									default: data.bankData.bic,
 								}, {
 									label: 'Sender',
 									fieldname: 'sender',
 									fieldtype: 'Data',
 									read_only: 1,
-									default: frm.doc.sender,
+									default: frm.doc.bank_party_name,
 								}, {
 									fieldname: 'col_break1',
 									fieldtype: 'Column Break',
+								},{
+									label: 'Party Type',
+									fieldname: 'party_type',
+									fieldtype: 'Link',
+									options: "Party Type",
+									default: frm.doc.party_type,
 								}, {
 									label: 'Party',
 									fieldname: 'party',
-									fieldtype: 'Data',
-									read_only: 1,
+									fieldtype: 'Link',
+									options: "Customer",
 									default: frm.doc.party,
 								}, {
 									label: 'GL Account',
 									fieldname: 'gl_account',
 									fieldtype: 'Data',
 									read_only: 1,
+									hidden: 1,
 									default: (
 										frm.doc.payment_type == "Pay"
 									) ? frm.doc.paid_from : frm.doc.paid_to
@@ -169,7 +179,7 @@ erpnextfints.iban_tools = {
 								}, ],
 								primary_action_label: __('Submit'),
 								primary_action: function(/* values */) {
-									erpnextfints.iban_tools.createPartyBankAccount(frm.doc, data, callback);
+									// erpnextfints.iban_tools.createPartyBankAccount(frm.doc, data, callback);
 									dialog.hide();
 								},
 							});
