@@ -1,7 +1,7 @@
 SELECT
-  tPE.*
+  tBT.*
 FROM
-  `tabPayment Entry` AS tPE
+  `tabBank Transaction` AS tBT
 WHERE
   -- Check "Bank Account" iban does not exist
   NOT EXISTS (
@@ -10,27 +10,8 @@ WHERE
     FROM
       `tabBank Account` AS tBA
     WHERE
-      tBA.iban = tPE.iban
+      tBA.iban = tBT.bank_party_iban
   )
-  AND NOT EXISTS (
-    -- Check "Payment Entry" is not a default customer/supplier
-    SELECT
-      1
-    FROM
-      `tabFinTS Login` AS tFL
-    WHERE
-      tFL.default_customer = tPE.party
-      OR tFL.default_supplier = tPE.party
-  )
-  AND tPE.docstatus != 2
-  -- Check requeried information are available
-  AND tPE.party IS NOT NULL
-  AND tPE.iban IS NOT NULL
-  AND tPE.sender IS NOT NULL
-GROUP BY
-  -- Remove duplicate entires
-  tPE.iban,
-  tPE.party,
-  tPE.sender
-ORDER BY
-  tPE.party;
+
+  AND tBT.docstatus != 2
+  AND tBT.bank_party_iban IS NOT NULL
