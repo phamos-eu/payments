@@ -179,7 +179,10 @@ erpnextfints.iban_tools = {
 								}, ],
 								primary_action_label: __('Submit'),
 								primary_action: function(/* values */) {
-									// erpnextfints.iban_tools.createPartyBankAccount(frm.doc, data, callback);
+						
+									frm.doc.party =  dialog.get_value("party")
+									frm.doc.party_type =  dialog.get_value("party_type") 
+									erpnextfints.iban_tools.createPartyBankAccount(frm.doc, data, callback);
 									dialog.hide();
 								},
 							});

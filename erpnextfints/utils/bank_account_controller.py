@@ -26,6 +26,7 @@ class BankAccountController:
         :type bankData: str
         :return: Dict with status and bank details
         """
+        
         try:
             ignore_permissions = False
             payment_doc = json.loads(payment_doc)
@@ -52,34 +53,37 @@ class BankAccountController:
 
             bankData = json.loads(bankData)
             bankName = bankData.get('name')
+            swiftNumber = bankData.get('bic')
 
             if not frappe.db.exists('Bank', {'bank_name': bankName}):
                 frappe.get_doc({
                     'doctype': 'Bank',
-                    'bank_name': bankName}
+                    'bank_name': bankName,
+                    'swift_number': swiftNumber
+                    }
                 ).insert(ignore_permissions=ignore_permissions)
 
-            gl_account = None
-            if payment_doc.get('payment_type') == "Pay":
-                gl_account = payment_doc.get('paid_from')
-            else:
-                gl_account = payment_doc.get('paid_to')
+            # gl_account = None
+            # if payment_doc.get('payment_type') == "Pay":
+            #     gl_account = payment_doc.get('paid_from')
+            # else:
+            #     gl_account = payment_doc.get('paid_to')
 
             bankAccount = ({
                 'doctype': 'Bank Account',
-                'account_name': payment_doc.get('sender'),
-                'account': gl_account,
+                'account_name': payment_doc.get('bank_party_name'),
+                # 'account': gl_account,
                 'bank': bankData.get('name'),
                 'party_type': payment_doc.get('party_type'),
                 'party': payment_doc.get('party'),
-                'iban': payment_doc.get('iban'),
+                'iban': payment_doc.get('bank_party_iban'),
                 'bank_account_no': bankData.get('bankCode'),
                 'swift_number': bankData.get('bic'),
                 'is_company_account': False,
                 'is_default': False,
             })
             bankAccountName = ''.join([
-                payment_doc.get('sender'), " - ",
+                payment_doc.get('bank_party_name'), " - ",
                 bankData.get('name')
             ])
             if not frappe.db.exists('Bank Account', bankAccountName):
@@ -88,6 +92,14 @@ class BankAccountController:
                     ignore_permissions=ignore_permissions
                 )
                 newBankAccount.insert(ignore_permissions)
+                
+                # insert party and party_type on bank_transaction document
+                bank_transaction = frappe.get_doc("Bank Transaction", payment_doc.get('name'))
+                bank_transaction.party = payment_doc.get('party')
+                bank_transaction.party_type = payment_doc.get('party_type')
+                bank_transaction.save()
+
+
                 frappe.msgprint(_("Successfully created Bank Account"))
                 return {"bankAccount": newBankAccount, "status": True}
             else:
@@ -98,6 +110,7 @@ class BankAccountController:
                         bankAccountName),
                     "status": True
                 }
+            
         except Exception as e:
             frappe.throw(_(
                 "Could not create bank account with error: {0}"
