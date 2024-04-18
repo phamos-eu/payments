@@ -111,6 +111,8 @@ erpnextfints.iban_tools = {
 						)) {
 							frappe.msgprint(__("Default party selected, please change party"));
 						} else {
+							
+							let defalutValue = frm.doc.party_type ? frm.doc.party_type:frm.doc.deposit > 0 ? 'Customer': 'Supplier'
 							let dialog = new frappe.ui.Dialog({
 								title: __('Create Bank Account'),
 								fields: [{
@@ -142,13 +144,17 @@ erpnextfints.iban_tools = {
 									fieldname: 'party_type',
 									fieldtype: 'Link',
 									options: "Party Type",
-									default: frm.doc.party_type,
+									default: defalutValue,
+									onchange: function(){
+										dialog.fields_dict['party'].df.options = dialog.get_value('party_type');
+										dialog.fields_dict['party'].refresh();
+									}
 								}, {
 									label: 'Party',
 									fieldname: 'party',
 									fieldtype: 'Link',
-									options: "Customer",
 									default: frm.doc.party,
+									options: defalutValue
 								}, {
 									label: 'GL Account',
 									fieldname: 'gl_account',

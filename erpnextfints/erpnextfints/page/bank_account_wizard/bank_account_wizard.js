@@ -24,15 +24,15 @@ erpnextfints.tools.bankWizard = class BankWizard {
 	make() {
 		const me = this;
 
-		me.$main_section = $(
-			`<div class="reconciliation page-main-content"></div>`).appendTo(me
-			.page.main);
-		const empty_state = __(
-			"Upload a bank statement, link or reconcile a bank account");
-		me.$main_section.append(
-			`<div class="flex justify-center align-center text-muted"
-			style="height: 50vh; display: flex;"><h5 class="text-muted">${empty_state}</h5></div>`
-		);
+		// me.$main_section = $(
+		// 	`<div class="reconciliation page-main-content"></div>`).appendTo(me
+		// 	.page.main);
+		// const empty_state = __(
+		// 	"Upload a bank statement, link or reconcile a bank account");
+		// me.$main_section.append(
+		// 	`<div class="flex justify-center align-center text-muted"
+		// 	style="height: 50vh; display: flex;"><h5 class="text-muted">${empty_state}</h5></div>`
+		// );
 		me.clear_page_content();
 		me.make_bankwizard_tool();
 		me.add_actions();
@@ -72,7 +72,7 @@ erpnextfints.tools.bankWizard = class BankWizard {
 		const me = this;
 		me.page.clear_fields();
 		$(me.page.body).find('.frappe-list').remove();
-		me.$main_section.empty();
+		// me.$main_section.empty();
 	}
 
 	make_bankwizard_tool() {
@@ -88,7 +88,9 @@ erpnextfints.tools.bankWizard = class BankWizard {
 						page_title: __(me.page.title),
 						ref_items: r.message
 					});
-					frappe.pages['bank_account_wizard'].refresh = function(/* wrapper */) {
+					frappe.pages['bank_account_wizard'].refresh = 
+					function(/* wrapper */) {
+						console.log('here')
 						window.location.reload(false);
 					};
 				});
