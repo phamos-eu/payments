@@ -123,18 +123,21 @@ erpnextfints.iban_tools = {
 									fieldname: 'iban',
 									fieldtype: 'Data',
 									read_only: 1,
+									reqd: 1,
 									default: frm.doc.bank_party_iban,
 								}, {
 									label: 'BIC',
 									fieldname: 'bic',
 									fieldtype: 'Data',
-									read_only: 1,
+									// read_only: 1,
+									reqd: 1,
 									default: data.bankData.bic,
 								}, {
 									label: 'Sender',
 									fieldname: 'sender',
 									fieldtype: 'Data',
-									read_only: 1,
+									// read_only: 1,
+									reqd: 1,
 									default: frm.doc.bank_party_name,
 								}, {
 									fieldname: 'col_break1',
@@ -144,6 +147,7 @@ erpnextfints.iban_tools = {
 									fieldname: 'party_type',
 									fieldtype: 'Link',
 									options: "Party Type",
+									reqd: 1,
 									default: defalutValue,
 									onchange: function(){
 										dialog.fields_dict['party'].df.options = dialog.get_value('party_type');
@@ -153,6 +157,7 @@ erpnextfints.iban_tools = {
 									label: 'Party',
 									fieldname: 'party',
 									fieldtype: 'Link',
+									reqd: 1,
 									default: frm.doc.party,
 									options: defalutValue
 								}, {
@@ -171,7 +176,8 @@ erpnextfints.iban_tools = {
 									label: 'Bank Name',
 									fieldname: 'bank_name',
 									fieldtype: 'Data',
-									read_only: 1,
+									// read_only: 1,
+									reqd: 1,
 									default: data.bankData.name,
 								}, {
 									fieldname: 'col_break2',
@@ -180,14 +186,21 @@ erpnextfints.iban_tools = {
 									label: 'Bank Code',
 									fieldname: 'bank_code',
 									fieldtype: 'Data',
-									read_only: 1,
+									// read_only: 1,
+									reqd: 1,
 									default: data.bankData.bankCode,
 								}, ],
 								primary_action_label: __('Submit'),
 								primary_action: function(/* values */) {
-						
+									
 									frm.doc.party =  dialog.get_value("party")
-									frm.doc.party_type =  dialog.get_value("party_type") 
+									frm.doc.party_type =  dialog.get_value("party_type")
+									frm.doc.bank_party_name = dialog.get_value("sender")		
+
+									data.bankData.name =  dialog.get_value("bank_name")
+									data.bankData.bankCode = dialog.get_value("bank_code")
+									data.bankData.bic = dialog.get_value('bic')
+									
 									erpnextfints.iban_tools.createPartyBankAccount(frm.doc, data, callback);
 									dialog.hide();
 								},
