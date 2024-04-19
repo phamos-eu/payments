@@ -15,3 +15,6 @@ WHERE
 
   AND tBT.docstatus != 2
   AND tBT.bank_party_iban IS NOT NULL
+  GROUP BY
+  -- Remove duplicate entires
+  tBT.bank_party_iban

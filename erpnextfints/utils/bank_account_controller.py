@@ -53,16 +53,43 @@ class BankAccountController:
 
             bankData = json.loads(bankData)
             bankName = bankData.get('name')
+            bankCode = bankData.get('bankCode')
             swiftNumber = bankData.get('bic')
 
-            if not frappe.db.exists('Bank', {'bank_name': bankName}):
-                frappe.get_doc({
+            # Check if Bank document exists based on bank name
+            bank_name_exists = frappe.db.exists('Bank', {'bank_name': bankName})
+
+            # Check if Bank document exists based on swift number
+            swift_number_exists = frappe.db.exists('Bank', {'swift_number': swiftNumber})
+
+            # print("check both", bank_name_exists, swift_number_exists)
+
+            if not bank_name_exists and not swift_number_exists:
+                # print('both not exist', bank_name_exists, swift_number_exists)
+
+                # Bank document does not exist, insert a new one
+                new_bank_doc = frappe.get_doc({
                     'doctype': 'Bank',
                     'bank_name': bankName,
                     'swift_number': swiftNumber
-                    }
-                ).insert(ignore_permissions=ignore_permissions)
+                })
+                new_bank_doc.insert(ignore_permissions=ignore_permissions)
+                # frappe.msgprint(_("new_bank_doc: {0}").format(new_bank_doc))
+            else:
+                # print('one of them exist', bank_name_exists, swift_number_exists) 
+                existing_bank_doc = ''
+                if bank_name_exists:
+                    existing_bank_doc = frappe.get_doc('Bank', {'bank_name': bankName})
+                else:
+                    existing_bank_doc = frappe.get_doc('Bank', {'swift_number': swiftNumber})
+                
+                bankName = existing_bank_doc.name 
+                swiftNumber = existing_bank_doc.swift_number
 
+            # print('----------')
+            # print('bank name', bankName)
+            # print('bank code', bankCode)
+            # print('swift number', swiftNumber)
             # gl_account = None
             # if payment_doc.get('payment_type') == "Pay":
             #     gl_account = payment_doc.get('paid_from')
@@ -73,18 +100,18 @@ class BankAccountController:
                 'doctype': 'Bank Account',
                 'account_name': payment_doc.get('bank_party_name'),
                 # 'account': gl_account,
-                'bank': bankData.get('name'),
+                'bank': bankName,
                 'party_type': payment_doc.get('party_type'),
                 'party': payment_doc.get('party'),
                 'iban': payment_doc.get('bank_party_iban'),
-                'bank_account_no': bankData.get('bankCode'),
-                'swift_number': bankData.get('bic'),
+                'bank_account_no': bankCode,
+                'swift_number': swiftNumber,
                 'is_company_account': False,
                 'is_default': False,
             })
             bankAccountName = ''.join([
                 payment_doc.get('bank_party_name'), " - ",
-                bankData.get('name')
+                bankName
             ])
             if not frappe.db.exists('Bank Account', bankAccountName):
                 newBankAccount = frappe.get_doc(
@@ -93,14 +120,23 @@ class BankAccountController:
                 )
                 newBankAccount.insert(ignore_permissions)
                 
-                # insert party and party_type on bank_transaction document
-                bank_transaction = frappe.get_doc("Bank Transaction", payment_doc.get('name'))
-                bank_transaction.party = payment_doc.get('party')
-                bank_transaction.party_type = payment_doc.get('party_type')
-                bank_transaction.save()
+                # get all bank transactions which have the same IBAN
+                IBANValue = payment_doc.get('bank_party_iban')
+                bank_transactions = frappe.get_all('Bank Transaction', filters={'bank_party_iban': IBANValue, 'party': ''})
 
+                
+                for bank_transaction in bank_transactions:
+                    
+                    # insert party and party_type on bank_transaction document
+                    bank_transaction_doc = frappe.get_doc("Bank Transaction", bank_transaction.name)
+                    bank_transaction_doc.party = payment_doc.get('party')
+                    bank_transaction_doc.party_type = payment_doc.get('party_type')
+                    bank_transaction_doc.save()
 
-                frappe.msgprint(_("Successfully created Bank Account"))
+                bank_account_name = newBankAccount.name
+                bank_account_link = f'<a href="bank-account/{bank_account_name}">{bank_account_name}</a>'
+
+                frappe.msgprint(_("Successfully created Bank Account: {0}").format(bank_account_link))
                 return {"bankAccount": newBankAccount, "status": True}
             else:
                 frappe.msgprint(_("Bank account already exists"))
