@@ -37,7 +37,7 @@ class KefiyaBankStatementImport(Document):
 					progress = int((index / total_rows) * 100)
 					frappe.publish_progress(progress, title='Importing Bank Transaction', description=f'Processing row {index}/{total_rows}')
 
-			if encoding=='ISO-8859-1':
+			elif encoding=='ISO-8859-1':
 				
 				for index, row in enumerate(csv_reader):
 					
@@ -45,6 +45,8 @@ class KefiyaBankStatementImport(Document):
 					index+=1
 					progress = int((index / total_rows) * 100)
 					frappe.publish_progress(progress, title='Importing Bank Transaction', description=f'Processing row {index}/{total_rows}')
+			else:
+				frappe.msgprint("Unsupported file format. Only utf-8 and ISO-8859-1 formats are supported currently.")
 
 	def get_file_from_url(self, file_url):
 		
@@ -63,7 +65,8 @@ class KefiyaBankStatementImport(Document):
 			description = row_data[4]
 			bank_party_iban = row_data[5]
 			bank_party_name = row_data[3]
-			deposit, withdrawal = self.format_amount_utf8(row_data[7])			
+			party, party_type = self.get_bank_account_data(bank_party_iban)
+			deposit, withdrawal = self.format_amount_utf8(row_data[7])	
 
 			bank_transaction.update({
 				"date": date.strftime('%Y-%m-%d'),
@@ -75,13 +78,16 @@ class KefiyaBankStatementImport(Document):
 				'bank_party_iban': bank_party_iban,
 				'allocated_amount': 0,
 				'unallocated_amount': abs(withdrawal - deposit),
+				'party': party,
+				'party_type': party_type,
 				"bank_party_name": bank_party_name
 			})
 
 			bank_transaction.insert()
 		except Exception as e:
 			frappe.msgprint(f'Error creating document for row: {row_data} - {e}')
-	
+
+
 	def format_amount_utf8(self, amount):
 		deposit, withdrawal = 0,0
 
@@ -111,6 +117,7 @@ class KefiyaBankStatementImport(Document):
 			description = row_data[4].replace('"', '')
 			bank_party_iban = row_data[5].replace('"', '')
 			bank_party_name = row_data[3].replace('"', '')
+			party, party_type = self.get_bank_account_data(bank_party_iban)
 			deposit, withdrawal = self.format_amount_iso(row_data[7])			
 
 			bank_transaction.update({
@@ -123,6 +130,8 @@ class KefiyaBankStatementImport(Document):
 				'bank_party_iban': bank_party_iban,
 				'allocated_amount': 0,
 				'unallocated_amount': abs(withdrawal - deposit),
+				'party': party,
+				'party_type': party_type,
 				"bank_party_name":  bank_party_name
 			})
 
@@ -160,3 +169,14 @@ class KefiyaBankStatementImport(Document):
 			withdrawal = abs(amount)
 
 		return [deposit, withdrawal]
+	
+	def get_bank_account_data(self, IBAN):
+		party, party_type = '', ''
+		bank_account_exists = frappe.db.exists('Bank Account', {'iban': IBAN})
+		
+		if bank_account_exists:
+			bank_account_doc = frappe.get_doc('Bank Account', {'iban': IBAN})
+			party = bank_account_doc.party
+			party_type = bank_account_doc.party_type
+
+		return [party, party_type]

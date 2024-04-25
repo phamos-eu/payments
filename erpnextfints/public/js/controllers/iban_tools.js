@@ -195,7 +195,8 @@ erpnextfints.iban_tools = {
 									
 									frm.doc.party =  dialog.get_value("party")
 									frm.doc.party_type =  dialog.get_value("party_type")
-									frm.doc.bank_party_name = dialog.get_value("sender")		
+									frm.doc.bank_party_name = dialog.get_value("sender")
+		
 
 									data.bankData.name =  dialog.get_value("bank_name")
 									data.bankData.bankCode = dialog.get_value("bank_code")
