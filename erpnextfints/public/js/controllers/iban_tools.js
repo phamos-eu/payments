@@ -64,6 +64,7 @@ erpnextfints.iban_tools = {
 				url: url,
 				type: 'GET',
 				success: function(data){
+					
 					if(data.checkResults.bankCode){
 						callback(data);
 					}else{
@@ -75,7 +76,17 @@ erpnextfints.iban_tools = {
 				}
 			});
 		}else{
-			frappe.throw(__("Unsupported IBAN country code: {0}",["<b>"+ibanCountryCode+"</b>"]));
+			
+			data = {
+				valid: false,
+				messages: 'Invalid IBAN',
+				iban: iban,
+				bankData: {bankCode: '', name: '', zip: '', city: '', bic: ''},
+				checkResults: {bankCode: true}
+			}
+			
+			callback(data)
+			// frappe.throw(__("Unsupported IBAN country code: {0}",["<b>"+ibanCountryCode+"</b>"]));
 		}
 	},
 	createPartyBankAccount: function(frm, bankInfo, resultCallback) {
@@ -93,6 +104,7 @@ erpnextfints.iban_tools = {
 		});
 	},
 	setPartyBankAccount: function(frm, callback) {
+		
 		erpnextfints.iban_tools.getBankDetailsByIBAN(frm.doc.bank_party_iban
 			, function(data) {
 			
@@ -125,13 +137,6 @@ erpnextfints.iban_tools = {
 									read_only: 1,
 									reqd: 1,
 									default: frm.doc.bank_party_iban,
-								}, {
-									label: 'BIC',
-									fieldname: 'bic',
-									fieldtype: 'Data',
-									// read_only: 1,
-									reqd: 1,
-									default: data.bankData.bic,
 								}, {
 									label: 'Sender',
 									fieldname: 'sender',
@@ -170,8 +175,9 @@ erpnextfints.iban_tools = {
 										frm.doc.payment_type == "Pay"
 									) ? frm.doc.paid_from : frm.doc.paid_to
 								}, {
-									label: 'Bank',
+									label: 'Bank Details',
 									fieldtype: 'Section Break',
+									description:(data.bankData.name)? 'The below data is fetched by using <a href="https://openiban.com/" target="_blank">OpenIban webservice</a>, please make sure that you validate the result manually or by using the validation service.': ''
 								}, {
 									label: 'Bank Name',
 									fieldname: 'bank_name',
@@ -179,6 +185,13 @@ erpnextfints.iban_tools = {
 									// read_only: 1,
 									reqd: 1,
 									default: data.bankData.name,
+								}, {
+									label: 'BIC',
+									fieldname: 'bic',
+									fieldtype: 'Data',
+									// read_only: 1,
+									reqd: 1,
+									default: data.bankData.bic,
 								}, {
 									fieldname: 'col_break2',
 									fieldtype: 'Column Break',
