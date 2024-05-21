@@ -9,6 +9,7 @@ import chardet
 import locale
 
 class KefiyaBankStatementImport(Document):
+	
 	@frappe.whitelist()
 	def start_import(self, file_url, bank_account, company):
 		file_path = self.get_file_from_url(file_url)
@@ -19,34 +20,40 @@ class KefiyaBankStatementImport(Document):
 			encoding = result['encoding']
 
 		total_rows = sum(1 for _ in open(file_path, mode='r', encoding=encoding))-7
-		
-		with open(file_path, mode='r', encoding=encoding, errors='replace') as csvfile:
-			csv_reader = csv.reader(csvfile)
-			# skip header (the first 7 rows)
-			for _ in range(7):
-				next(csv_reader)
+		self.db_set('payload_count', total_rows)
 
-			frappe.publish_progress(0, title='Importing Bank Transaction', description='Starting import...')
+		try:
+			with open(file_path, mode='r', encoding=encoding, errors='replace') as csvfile:
+				csv_reader = csv.reader(csvfile)
+                # Skip header (the first 7 rows)
+				for _ in range(7):
+					next(csv_reader)
 
-			if encoding=='utf-8':
-		
+				frappe.publish_progress(0, title='Importing Bank Transaction', description='Starting import...')
+                
 				for index, row in enumerate(csv_reader):
-					
-					self.create_new_doc_utf8(row, bank_account, company)
-					index+=1
+					if encoding == 'utf-8':
+						self.create_new_doc_utf8(row, bank_account, company, index, total_rows)
+					elif encoding == 'ISO-8859-1':
+						self.create_new_doc_iso(row, bank_account, company, index, total_rows)
+					else:
+						frappe.msgprint("Unsupported file format. Only utf-8 and ISO-8859-1 formats are supported currently.")
+						
+						self.update_status('Error')
+						return
+
+					index += 1
 					progress = int((index / total_rows) * 100)
 					frappe.publish_progress(progress, title='Importing Bank Transaction', description=f'Processing row {index}/{total_rows}')
 
-			elif encoding=='ISO-8859-1':
-				
-				for index, row in enumerate(csv_reader):
-					
-					self.create_new_doc_iso(row, bank_account, company)
-					index+=1
-					progress = int((index / total_rows) * 100)
-					frappe.publish_progress(progress, title='Importing Bank Transaction', description=f'Processing row {index}/{total_rows}')
-			else:
-				frappe.msgprint("Unsupported file format. Only utf-8 and ISO-8859-1 formats are supported currently.")
+		except Exception as e:
+			frappe.msgprint(f'Error during import: {e}')
+			self.update_status('Error')
+
+
+	def update_status(self, status):
+		self.db_set('status', status)
+		frappe.publish_realtime('update_import_status', {'docname': self.name, 'status': status}, user=frappe.session.user)
 
 	def get_file_from_url(self, file_url):
 		
@@ -57,7 +64,7 @@ class KefiyaBankStatementImport(Document):
 		return file_path
 
 	# utf-8
-	def create_new_doc_utf8(self, row_data, bank_account, company):
+	def create_new_doc_utf8(self, row_data, bank_account, company, index, total_rows):
         # This function create a new document from a csv row
 		try:
 			bank_transaction = frappe.new_doc("Bank Transaction")
@@ -84,9 +91,15 @@ class KefiyaBankStatementImport(Document):
 			})
 
 			bank_transaction.insert()
+		
+			if index+1==total_rows and self.status=='Not Started':
+				self.db_set('imported_records', index+1)
+				self.update_status('Success')
+
 		except Exception as e:
 			frappe.msgprint(f'Error creating document for row: {row_data} - {e}')
-
+			self.db_set('imported_records', index)
+			self.update_status('Partial Success')
 
 	def format_amount_utf8(self, amount):
 		deposit, withdrawal = 0,0
@@ -106,7 +119,7 @@ class KefiyaBankStatementImport(Document):
 
 
 	# ISO-8859-1
-	def create_new_doc_iso(self, row_data, bank_account, company):
+	def create_new_doc_iso(self, row_data, bank_account, company, index, total_rows):
         # This function create a new document from a csv row
 		
 		row_data = ''.join(row_data)
@@ -136,8 +149,15 @@ class KefiyaBankStatementImport(Document):
 			})
 
 			bank_transaction.insert()
+			
+			if index+1==total_rows and self.status=='Not Started':
+				self.db_set('imported_records', index+1)
+				self.update_status('Success')
 		except Exception as e:
 			frappe.msgprint(f'Error creating document for row: {row_data} - {e}')
+			
+			self.db_set('imported_records', index)
+			self.update_status('Partial Success')
 	
 	def format_amount_iso(self, amount):
 		deposit, withdrawal = 0,0

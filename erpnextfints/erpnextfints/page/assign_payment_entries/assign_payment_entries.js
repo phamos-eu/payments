@@ -295,7 +295,7 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 			const currency = me.data.currency;
 			const sales_invoice_name = me.data.name;
 			const bank_transaction_name = $(this).attr("data-name");
-
+			
 			frappe.call({
 				method: "erpnextfints.utils.client.add_sales_invoice_payment",
 				args: {
@@ -312,7 +312,7 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 						payment_name: sales_invoice_name,
 						amount: format_currency(paid_amount, currency),
 					});
-
+					console.log('vouchers', vouchers)
 					frappe.call({
 						method:
 							"erpnext.accounts.doctype.bank_reconciliation_tool.bank_reconciliation_tool.reconcile_vouchers",
@@ -327,6 +327,7 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 					});
 				},
 			});
+
 		});
 	}
 };

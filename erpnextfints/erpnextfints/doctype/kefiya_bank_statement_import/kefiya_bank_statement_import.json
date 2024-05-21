@@ -13,7 +13,12 @@
   "party",
   "party_type",
   "bank",
-  "import_file"
+  "import_file",
+  "column_break_ievsf",
+  "submit_after_success",
+  "status",
+  "payload_count",
+  "imported_records"
  ],
  "fields": [
   {
@@ -22,7 +27,8 @@
    "in_list_view": 1,
    "label": "Company",
    "options": "Company",
-   "reqd": 1
+   "reqd": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "bank_account",
@@ -30,7 +36,8 @@
    "in_list_view": 1,
    "label": "Bank Account",
    "options": "Bank Account",
-   "reqd": 1
+   "reqd": 1,
+   "set_only_once": 1
   },
   {
    "fetch_from": "bank_account.bank",
@@ -59,11 +66,45 @@
    "fieldtype": "Data",
    "hidden": 1,
    "label": "Party Type"
+  },
+  {
+   "default": "1",
+   "fieldname": "submit_after_success",
+   "fieldtype": "Check",
+   "label": "Submit After Success",
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "column_break_ievsf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Not Started",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Status",
+   "options": "Not Started\nSuccess\nPartial Success\nError",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payload_count",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Payload Count",
+   "read_only": 1
+  },
+  {
+   "fieldname": "imported_records",
+   "fieldtype": "Int",
+   "hidden": 1,
+   "label": "Imported Records",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-02 17:11:07.099096",
+ "modified": "2024-05-21 16:28:24.896644",
  "modified_by": "Administrator",
  "module": "ERPNextFinTS",
  "name": "Kefiya Bank Statement Import",

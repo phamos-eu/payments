@@ -90,7 +90,6 @@ erpnextfints.tools.bankWizard = class BankWizard {
 					});
 					frappe.pages['bank_account_wizard'].refresh = 
 					function(/* wrapper */) {
-						console.log('here')
 						window.location.reload(false);
 					};
 				});
