@@ -91,7 +91,9 @@ class KefiyaBankStatementImport(Document):
 			})
 
 			bank_transaction.insert()
-		
+			if self.submit_after_success:
+				bank_transaction.submit()
+				
 			if index+1==total_rows and self.status=='Not Started':
 				self.db_set('imported_records', index+1)
 				self.update_status('Success')
@@ -149,7 +151,9 @@ class KefiyaBankStatementImport(Document):
 			})
 
 			bank_transaction.insert()
-			
+			if self.submit_after_success:
+				bank_transaction.submit()
+
 			if index+1==total_rows and self.status=='Not Started':
 				self.db_set('imported_records', index+1)
 				self.update_status('Success')
