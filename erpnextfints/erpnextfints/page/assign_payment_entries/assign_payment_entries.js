@@ -203,13 +203,13 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 		const selectedOption = await frappe.call({
 			method: "frappe.client.get_value",
 			args: {
-				doctype: "Payment Wizard Setting",
+				doctype: "Kefiya Settings",
 				filters: {},
 				fieldname: "show_entries_in_payment_assignment_wizard",
 			},
 		});
 
-		// Extract the selected value from "Payment Wizard Setting" doctype
+		// Extract the selected value from "Kefiya Settings" doctype
 		const optionValue =
 			selectedOption.message.show_entries_in_payment_assignment_wizard;
 

@@ -17,7 +17,7 @@ frappe.ui.form.on("Kefiya Bank Statement Import", {
             frm.doc.status !== 'Partial Success' && 
             frm.doc.status !== 'Error'
 		) {
-			 frm.disable_save();
+			frm.disable_save();
 			frm.page.set_primary_action("Start Import", () =>  {
 					frm.call("start_import", {
 						file_url: frm.doc.import_file,

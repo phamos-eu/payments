@@ -136,7 +136,7 @@ def add_sales_invoice_payment(bank_transaction_name, sales_invoice_name):
     3, save and return the sales invoice document
     """
 
-    kefiya_setting = frappe.get_single("Payment Wizard Setting")
+    kefiya_setting = frappe.get_single("Kefiya Settings")
     
     # query to get account
     result = frappe.db.sql("""

@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class PaymentWizardSetting(Document):
+class KefiyaSettings(Document):
 	pass
