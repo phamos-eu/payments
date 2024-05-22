@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestPaymentWizardSetting(FrappeTestCase):
+class TestKefiyaSettings(FrappeTestCase):
 	pass
