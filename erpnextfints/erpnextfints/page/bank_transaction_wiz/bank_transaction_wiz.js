@@ -2,7 +2,7 @@
 // For license information, please see license.txt
 frappe.provide("erpnextfints.tools");
 
-frappe.pages["assign_payment_entries"].on_page_load = function (wrapper) {
+frappe.pages["bank-transaction-wiz"].on_page_load = function (wrapper) {
 	erpnextfints.tools.assignWizardObj = new erpnextfints.tools.assignWizard(
 		wrapper
 	);
@@ -12,7 +12,7 @@ erpnextfints.tools.assignWizard = class assignWizard {
 	constructor(wrapper) {
 		this.page = frappe.ui.make_app_page({
 			parent: wrapper,
-			title: __("Assign Payment Wizard"),
+			title: __("Bank Transaction Wizard"),
 			single_column: true,
 		});
 		this.parent = wrapper;
@@ -93,7 +93,7 @@ erpnextfints.tools.assignWizard = class assignWizard {
 					doctype: "Sales Invoice",
 					page_title: __(me.page.title),
 				});
-			frappe.pages["assign_payment_entries"].refresh =
+			frappe.pages["bank-transaction-wiz"].refresh =
 				function (/* wrapper */) {
 					window.location.reload(false);
 				};
@@ -118,6 +118,7 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 		this.fields = [
 			"name",
 			"customer",
+			"customer_name",
 			"outstanding_amount",
 			"posting_date",
 			"due_date",
@@ -176,7 +177,13 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 			order_by = "posting_date";
 		} else if (optionValue == "Bank Transaction") {
 			doctype = "Bank Transaction";
-			fields = ["name", "party", "date", "unallocated_amount", "description"];
+			fields = [
+				"name", 
+				"party",
+				"date", 
+				"unallocated_amount", 
+				"description"
+			];
 			filters = {
 				docstatus: 1,
 				party: customer,
@@ -220,7 +227,8 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 		$('[data-fieldname="title"]').remove();
 		let index = 0;
 		let rowHTML;
-		// me.data - list of sales invoice. the below code fetchs all payment entries associated with single sales invoice
+
+		// me.data - list of sales invoice. the below code fetchs all payment entries(Payment Entry and Bank Transaction) associated with single sales invoice
 
 		for (const value of me.data) {
 			rowHTML =
@@ -250,7 +258,7 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 	render_header() {
 		const me = this;
 		if ($(this.wrapper).find(".payment-assign-wizard-header").length === 0) {
-			me.$result.append(frappe.render_template("sale_invoice_header"));
+			me.$result.append(frappe.render_template("bank_transaction_header"));
 		}
 	}
 };
@@ -258,6 +266,7 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 	constructor(row, data, payments, optionValue) {
 		this.data = data;
+		this.data.outstanding_amount = format_currency(this.data.outstanding_amount, this.data.currency);
 		this.data.payments = payments;
 		this.data.optionValue = optionValue;
 		this.row = row;
@@ -266,7 +275,8 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 	}
 
 	make() {
-		$(this.row).append(frappe.render_template("sale_invoice_row", this.data));
+	
+		$(this.row).append(frappe.render_template("bank_transaction_row", this.data));
 	}
 
 	bind_events() {
@@ -312,7 +322,7 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 						payment_name: sales_invoice_name,
 						amount: format_currency(paid_amount, currency),
 					});
-				
+					
 					frappe.call({
 						method:
 							"erpnext.accounts.doctype.bank_reconciliation_tool.bank_reconciliation_tool.reconcile_vouchers",
