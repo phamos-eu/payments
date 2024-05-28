@@ -3,13 +3,13 @@
   <div>
     <div class="clickable-section" data-name="{{ name }}">
       <div class="row">
-        <div class="col-sm-1 hidden-xs" style="padding-right: 0px">
+        <div class="col-sm-2 hidden-xs" style="padding-right: 0px">
           <button
             class="hide_row btn btn-default btn-xs hidden-xs center-block"
             data-name="{{ name }}"
-            style="padding-top: 0px; padding-bottom: 0px; margin-left: 10px;"
+            style="margin-left: 10px;"
           >
-            {{ __("Hide") }}
+          👁️ {{ __("Hide") }}
           </button>
         </div>
         
@@ -25,7 +25,7 @@
           {{ outstanding_amount }}
         </div>
         <div class="col-sm-2 ellipsis hidden-xs">{{ posting_date }}</div>
-        <div class="col-sm-3 ellipsis">{{ due_date }}</div>
+        <!-- <div class="col-sm-3 ellipsis">{{ due_date }}</div> -->
       </div>
     </div>
   </div>
@@ -56,9 +56,9 @@
       {{ payment.unallocated_amount }} {{ currency }}
     </div>
     <div class="col-sm-2 ellipsis">{{ payment.posting_date }}</div>
-    <div class="col-sm-3 ellipsis hidden-xs" style="white-space: normal">
+    <!-- <div class="col-sm-3 ellipsis hidden-xs" style="white-space: normal">
       {{ payment.remarks}}
-    </div>
+    </div> -->
 
   </div>
 </div>
@@ -68,13 +68,13 @@
 {% if optionValue == "Bank Transaction" %} {% for payment in payments %}
 <div class="list-row payment-assign-wizard-item" style="height: auto">
   <div class="row">
-    <div class="col-sm-1" style="padding-right: 0px">
+    <div class="col-sm-2" style="padding-right: 0px">
       <button
         class="reconcile_transaction btn btn-default btn-xs center-block"
         data-name="{{ payment.name }}"
-        style="padding-top: 0px; padding-bottom: 0px"
+        style="margin-left: 10px;"
       >
-        {{ __("Reconcile") }}
+      💰 {{ __("Reconcile") }}
       </button>
     </div>
 
@@ -93,9 +93,9 @@
     </div>
     <div class="col-sm-2 ellipsis">{{ payment.date }}</div>
 
-    <div class="col-sm-2 ellipsis">
+    <!-- <div class="col-sm-2 ellipsis">
       <a href="bank-transaction/{{ payment.name }}">{{ payment.name }}</a>
-    </div>
+    </div> -->
 
   </div>
 </div>

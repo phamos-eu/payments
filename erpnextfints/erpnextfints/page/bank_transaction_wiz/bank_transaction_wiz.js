@@ -17,12 +17,14 @@ erpnextfints.tools.assignWizard = class assignWizard {
 		});
 		this.parent = wrapper;
 		this.page = this.parent.page;
+		this.remove_page_buttons();
 		this.make();
 	}
-
+	remove_page_buttons(){
+		$('.custom-actions').remove()
+	}
 	make() {
 		const me = this;
-
 		me.clear_page_content();
 		me.make_assignWizard_tool();
 		me.add_actions();
@@ -225,16 +227,13 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 		$('[data-fieldname="name"]').remove();
 		$('[data-fieldname="status"]').remove();
 		$('[data-fieldname="title"]').remove();
-		let index = 0;
+		
 		let rowHTML;
 
 		// me.data - list of sales invoice. the below code fetchs all payment entries(Payment Entry and Bank Transaction) associated with single sales invoice
 
 		for (const value of me.data) {
-			rowHTML =
-				index % 2 !== 0
-					? '<div class="list-row-container" style="background-color: #F3F3F3">'
-					: '<div class="list-row-container">';
+			rowHTML = '<div class="list-row-contain"></div>';
 
 			const r = await frappe.call(
 				this.get_row_call_args(value.customer, optionValue)
@@ -251,7 +250,6 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 					optionValue
 				);
 			}
-			index += 1;
 		}
 	}
 
@@ -331,7 +329,7 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 							vouchers: vouchers,
 						},
 						callback(/* r */) {
-							// Refresh page after asignment
+							// Refresh page after asignment					
 							erpnextfints.tools.assignWizardList.refresh();
 						},
 					});
