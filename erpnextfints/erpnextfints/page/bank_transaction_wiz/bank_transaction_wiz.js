@@ -344,7 +344,6 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 							vouchers: vouchers,
 						},
 						callback(/* r */) {
-							console.log('inside the callback')
 							// Refresh page after asignment		
 							erpnextfints.tools.assignWizardList.refresh();
 						},
