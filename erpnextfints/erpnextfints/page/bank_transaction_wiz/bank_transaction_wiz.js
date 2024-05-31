@@ -22,6 +22,7 @@ erpnextfints.tools.assignWizard = class assignWizard {
 	}
 	remove_page_buttons(){
 		$('.custom-actions').remove()
+		$('.page-form').remove();	
 	}
 	make() {
 		const me = this;
@@ -223,7 +224,7 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 			selectedOption.message.show_entries_in_payment_assignment_wizard;
 
 		const me = this;
-		this.$result.find(".list-row-container").remove();
+		this.$result.find(".list-row-contain").remove();
 		$('[data-fieldname="name"]').remove();
 		$('[data-fieldname="status"]').remove();
 		$('[data-fieldname="title"]').remove();
@@ -264,8 +265,22 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 	constructor(row, data, payments, optionValue) {
 		this.data = data;
-		this.data.outstanding_amount = format_currency(this.data.outstanding_amount, this.data.currency);
+        // system default for date
+		let sysdefaults = frappe.sys_defaults;
+		let date_format = sysdefaults && sysdefaults.date_format ? sysdefaults.date_format : "yyyy-mm-dd";
+		date_format = date_format.replace('yyyy', 'YYYY').replace('dd', 'DD').replace('mm', 'MM');
+
+		// formatting date based on system defaults
+		this.data.outstanding_amount = format_currency(this.data.outstanding_amount, this.data.currency); 
+		this.data.posting_date = moment(this.data.posting_date).format(date_format);
+
 		this.data.payments = payments;
+
+		this.data.payments.forEach(payment => {
+			payment.date = moment(payment.date).format(date_format);
+			payment.unallocated_amount = format_currency(payment.unallocated_amount, this.data.currency);
+		});
+
 		this.data.optionValue = optionValue;
 		this.row = row;
 		this.make();
@@ -329,7 +344,7 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 							vouchers: vouchers,
 						},
 						callback(/* r */) {
-							// Refresh page after asignment					
+							// Refresh page after asignment		
 							erpnextfints.tools.assignWizardList.refresh();
 						},
 					});
