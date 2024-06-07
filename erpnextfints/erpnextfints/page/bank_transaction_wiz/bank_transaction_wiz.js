@@ -191,6 +191,7 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 				docstatus: 1,
 				party: customer,
 				unallocated_amount: [">", 0],
+				deposit: [">", 0]
 			};
 			order_by = "date";
 		} else {
@@ -320,7 +321,7 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 			const bank_transaction_name = $(this).attr("data-name");
 			
 			frappe.call({
-				method: "erpnextfints.utils.client.add_sales_invoice_payment",
+				method: "erpnextfints.utils.client.create_payment_entry",
 				args: {
 					bank_transaction_name: bank_transaction_name,
 					sales_invoice_name: sales_invoice_name,
@@ -328,11 +329,12 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 				callback: function (r) {
 					let vouchers = [];
 
-					const paid_amount = r.message;
+					const paid_amount = r.message[0];
+					const payment_entry_name = r.message[1];
 
 					vouchers.push({
-						payment_doctype: "Sales Invoice",
-						payment_name: sales_invoice_name,
+						payment_doctype: "Payment Entry",
+						payment_name: payment_entry_name,
 						amount: format_currency(paid_amount, currency),
 					});
 					
