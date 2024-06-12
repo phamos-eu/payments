@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 
 import frappe
 from frappe.utils import getdate
-
+from frappe.utils import today
 
 @frappe.whitelist()
 def import_fints_transactions(fints_import, fints_login, user_scope):
@@ -126,112 +126,81 @@ def auto_assign_payments():
 
 
 
-# Add sales invoice payment on the specified sales invoice
+# Create Payment Entry record when reconcile button is clicked
 @frappe.whitelist()
-def add_sales_invoice_payment(bank_transaction_name, sales_invoice_name):
-    """Create sales invoice payment on sales invoice doctype.
-
-    1, get sales_invoice document based on sales_invoice value
-    2, create new entry on sales invoice payment child table
-    3, save and return the sales invoice document
+def create_payment_entry(bank_transaction_name, sales_invoice_name):
+    """Create payment entry document from sales invoice doctype.
     """
-
-    kefiya_setting = frappe.get_single("Kefiya Settings")
-    
-    # query to get account
-    result = frappe.db.sql("""
-        SELECT company, default_account
-        FROM `tabMode of Payment Account`
-        WHERE parent = %s
-    """, (kefiya_setting.mode_of_payment,), as_dict=True)
-
-    account = result[0].default_account
-  
-    
+   
     bank_transaction = frappe.get_doc("Bank Transaction", bank_transaction_name)
     sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
     
-    
     unallocated_amount = bank_transaction.unallocated_amount
     outstanding_amount = sales_invoice.outstanding_amount
-    paid_amount = 0
+    paid_amount = outstanding_amount
 
-    if unallocated_amount >= outstanding_amount:
-        paid_amount = outstanding_amount
-        outstanding_amount = 0
-        
-    else:
-        outstanding_amount = outstanding_amount - unallocated_amount
+    if unallocated_amount <= outstanding_amount:
         paid_amount = unallocated_amount
 
 
-    sales_invoice_payment = frappe.new_doc("Sales Invoice Payment")
+    payment_entry = frappe.call("erpnext.accounts.doctype.payment_entry.payment_entry.get_payment_entry", 'Sales Invoice', sales_invoice_name)
 
-    # Set fields for the Sales Invoice Payment document
-    sales_invoice_payment.update({
-        "mode_of_payment": kefiya_setting.mode_of_payment,
-        "account": account,
-        "amount": paid_amount, 
-        "parent": sales_invoice_name,
-        'parentfield': 'payments',
-        'parenttype': 'Sales Invoice'
-    })
+    payment_entry.paid_amount = paid_amount
+    payment_entry.reference_date = today()
+    payment_entry.reference_no = 'BTN Wizard '+ today()
+    payment_entry.payment_type = "Receive" if bank_transaction.deposit > 0.0 else "Pay"
+    account_from_to = "paid_to" if bank_transaction.deposit > 0.0 else "paid_from"
+    bank_account = frappe.db.get_values(
+		"Bank Account", bank_transaction.bank_account, ["account", "company"], as_dict=True
+	)[0]
+    (gl_account, company) = (bank_account.account, bank_account.company)
 
-    sales_invoice_payment.insert()
+    payment_entry.bank_account = bank_transaction.bank_account
 
-    # Get total paid amount on certain sales invoice
-    paid_amounts = frappe.db.sql("""
-        SELECT SUM(amount) AS total_paid_amount
-        FROM `tabSales Invoice Payment`
-        WHERE parent = %s
-        GROUP BY parent
-    """, (sales_invoice_name,), as_dict=True)
-
-    if  outstanding_amount==0:
-        status = "Paid"
+    if account_from_to == "paid_to":
+        payment_entry.paid_to = gl_account
     else:
-        status = "Partly Paid"
-    
-    total_paid_amount = paid_amounts[0].total_paid_amount
-    sql_query = """
-        UPDATE `tabSales Invoice`
-        SET is_pos = 1, outstanding_amount = %s, paid_amount = %s, status = %s
-        WHERE name = %s
-    """
-    
-    frappe.db.sql(sql_query, (outstanding_amount, total_paid_amount, status, sales_invoice_name))
-    return total_paid_amount
+        payment_entry.paid_from = gl_account
+
+
+    for reference in payment_entry.references:
+        reference.allocated_amount = paid_amount
+
+    payment_entry.insert()
+    payment_entry.submit()
+
+    return paid_amount, payment_entry.name
 
 
 @frappe.whitelist()
 def remove_sales_invoice_payment(sales_invoice_name):
-   
-    sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
-    total_paid_amount = sales_invoice.paid_amount
-    frappe.db.sql("""
-        DELETE FROM `tabSales Invoice Payment`
-        WHERE parent = %s
-    """, (sales_invoice_name,))
+    pass
+    # sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
+    # total_paid_amount = sales_invoice.paid_amount
+    # frappe.db.sql("""
+    #     DELETE FROM `tabSales Invoice Payment`
+    #     WHERE parent = %s
+    # """, (sales_invoice_name,))
     
-    status="Draft"
-    today = getdate()
-    is_pos = 0
+    # status="Draft"
+    # today = getdate()
+    # is_pos = 0
 
-    if sales_invoice.outstanding_amount == 0 and getdate(sales_invoice.due_date) >= today:
-        status = "Unpaid"
+    # if sales_invoice.outstanding_amount == 0 and getdate(sales_invoice.due_date) >= today:
+    #     status = "Unpaid"
 
-    if sales_invoice.outstanding_amount > 0 and getdate(sales_invoice.due_date) >= today:
-        status = "Partly Paid"
-        is_pos = 1
+    # if sales_invoice.outstanding_amount > 0 and getdate(sales_invoice.due_date) >= today:
+    #     status = "Partly Paid"
+    #     is_pos = 1
 
-    if getdate(sales_invoice.due_date) < today:
-        status = "Overdue"
+    # if getdate(sales_invoice.due_date) < today:
+    #     status = "Overdue"
 
     
-    sql_query = """
-        UPDATE `tabSales Invoice`
-        SET is_pos = %s, outstanding_amount = %s, paid_amount = %s, status = %s
-        WHERE name = %s
-    """
+    # sql_query = """
+    #     UPDATE `tabSales Invoice`
+    #     SET is_pos = %s, outstanding_amount = %s, paid_amount = %s, status = %s
+    #     WHERE name = %s
+    # """
     
-    frappe.db.sql(sql_query, (is_pos, total_paid_amount, 0, status, sales_invoice_name))
+    # frappe.db.sql(sql_query, (is_pos, total_paid_amount, 0, status, sales_invoice_name))
