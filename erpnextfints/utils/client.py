@@ -150,17 +150,22 @@ def create_payment_entry(bank_transaction_name, sales_invoice_name):
     payment_entry.reference_no = 'BTN Wizard '+ today()
     payment_entry.payment_type = "Receive" if bank_transaction.deposit > 0.0 else "Pay"
     account_from_to = "paid_to" if bank_transaction.deposit > 0.0 else "paid_from"
-    bank_account = frappe.db.get_values(
-		"Bank Account", bank_transaction.bank_account, ["account", "company"], as_dict=True
-	)[0]
-    (gl_account, company) = (bank_account.account, bank_account.company)
 
-    payment_entry.bank_account = bank_transaction.bank_account
+    bank_account = ''
+    if bank_transaction.bank_account:
+        bank_account = frappe.db.get_values(
+            "Bank Account", bank_transaction.bank_account, ["account", "company"], as_dict=True
+        )[0]
 
-    if account_from_to == "paid_to":
-        payment_entry.paid_to = gl_account
-    else:
-        payment_entry.paid_from = gl_account
+    if bank_account and bank_account.account:
+        (gl_account, company) = (bank_account.account, bank_account.company)
+
+        payment_entry.bank_account = bank_transaction.bank_account
+
+        if account_from_to == "paid_to":
+            payment_entry.paid_to = gl_account
+        else:
+            payment_entry.paid_from = gl_account
 
 
     for reference in payment_entry.references:
