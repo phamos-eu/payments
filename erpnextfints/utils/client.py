@@ -175,37 +175,3 @@ def create_payment_entry(bank_transaction_name, sales_invoice_name):
     payment_entry.submit()
 
     return paid_amount, payment_entry.name
-
-
-@frappe.whitelist()
-def remove_sales_invoice_payment(sales_invoice_name):
-    pass
-    # sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
-    # total_paid_amount = sales_invoice.paid_amount
-    # frappe.db.sql("""
-    #     DELETE FROM `tabSales Invoice Payment`
-    #     WHERE parent = %s
-    # """, (sales_invoice_name,))
-    
-    # status="Draft"
-    # today = getdate()
-    # is_pos = 0
-
-    # if sales_invoice.outstanding_amount == 0 and getdate(sales_invoice.due_date) >= today:
-    #     status = "Unpaid"
-
-    # if sales_invoice.outstanding_amount > 0 and getdate(sales_invoice.due_date) >= today:
-    #     status = "Partly Paid"
-    #     is_pos = 1
-
-    # if getdate(sales_invoice.due_date) < today:
-    #     status = "Overdue"
-
-    
-    # sql_query = """
-    #     UPDATE `tabSales Invoice`
-    #     SET is_pos = %s, outstanding_amount = %s, paid_amount = %s, status = %s
-    #     WHERE name = %s
-    # """
-    
-    # frappe.db.sql(sql_query, (is_pos, total_paid_amount, 0, status, sales_invoice_name))
