@@ -373,14 +373,16 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 		// reconcile bank transaction against sales invoice
 		$(me.row).on("click", ".reconcile_transaction", function () {
 			const currency = me.data.currency;
-			const sales_invoice_name = me.data.name;
+			const invoice_name = me.data.name;
+			const match_against = me.data.matchAgainst;
 			const bank_transaction_name = $(this).attr("data-name");
-			
+
 			frappe.call({
 				method: "erpnextfints.utils.client.create_payment_entry",
 				args: {
 					bank_transaction_name: bank_transaction_name,
-					sales_invoice_name: sales_invoice_name,
+					invoice_name: invoice_name,
+					match_against: match_against
 				},
 				callback: function (r) {
 					let vouchers = [];

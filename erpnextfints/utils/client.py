@@ -128,22 +128,21 @@ def auto_assign_payments():
 
 # Create Payment Entry record when reconcile button is clicked
 @frappe.whitelist()
-def create_payment_entry(bank_transaction_name, sales_invoice_name):
-    """Create payment entry document from sales invoice doctype.
+def create_payment_entry(bank_transaction_name, invoice_name, match_against):
+    """Create payment entry document from sales or purchase invoice doctype.
     """
-   
+
     bank_transaction = frappe.get_doc("Bank Transaction", bank_transaction_name)
-    sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
+    invoice_doc = frappe.get_doc(match_against, invoice_name)
     
     unallocated_amount = bank_transaction.unallocated_amount
-    outstanding_amount = sales_invoice.outstanding_amount
+    outstanding_amount = invoice_doc.outstanding_amount
     paid_amount = outstanding_amount
 
     if unallocated_amount <= outstanding_amount:
         paid_amount = unallocated_amount
 
-
-    payment_entry = frappe.call("erpnext.accounts.doctype.payment_entry.payment_entry.get_payment_entry", 'Sales Invoice', sales_invoice_name)
+    payment_entry = frappe.call("erpnext.accounts.doctype.payment_entry.payment_entry.get_payment_entry", match_against, invoice_name)
 
     payment_entry.paid_amount = paid_amount
     payment_entry.reference_date = today()
