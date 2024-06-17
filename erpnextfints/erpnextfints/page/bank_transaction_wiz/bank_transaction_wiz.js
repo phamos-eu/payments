@@ -24,11 +24,24 @@ erpnextfints.tools.assignWizard = class assignWizard {
 		$('.custom-actions').remove()
 		$('.page-form').remove();	
 	}
-	make() {
+
+	async fetchKefiyaSettings() {
+		const response = await frappe.call({
+			method: "frappe.client.get",
+			args: {
+				doctype: "Kefiya Settings",
+				name: "Kefiya Settings",
+			},
+		});
+		return response.message;
+	}
+
+	async make() {
 		const me = this;
 		me.clear_page_content();
-		me.make_assignWizard_tool();
-		me.add_actions();
+		let result = await this.fetchKefiyaSettings()
+		me.make_assignWizard_tool(result);
+		// me.add_actions();
 	}
 
 	add_actions() {
@@ -85,22 +98,39 @@ erpnextfints.tools.assignWizard = class assignWizard {
 		$(me.page.body).find(".frappe-list").remove();
 	}
 
-	make_assignWizard_tool() {
+	make_assignWizard_tool(kefiyaSettings) {
 		const me = this;
 		// ensure that the metadata for the "Sales Invoice" DocType is loaded before proceeding with the wizard setup(AssignWizardTool).
+		if (kefiyaSettings.assign_against==='Sales Invoice'){
+			frappe.model.with_doctype("Sales Invoice", () => {
+				erpnextfints.tools.assignWizardList =
+					new erpnextfints.tools.AssignWizardTool({
+						parent: me.parent,
+						doctype: "Sales Invoice",
+						page_title: __(me.page.title),
+						kefiyaSettings: kefiyaSettings
+					});
+				frappe.pages["bank-transaction-wiz"].refresh =
+					function (/* wrapper */) {
+						window.location.reload(false);
+					};
+			});
+		} else if (kefiyaSettings.assign_against==='Purchase Invoice'){
+			frappe.model.with_doctype("Purchase Invoice", () => {
+				erpnextfints.tools.assignWizardList =
+					new erpnextfints.tools.AssignWizardTool({
+						parent: me.parent,
+						doctype: "Purchase Invoice",
+						page_title: __(me.page.title),
+						kefiyaSettings: kefiyaSettings
+					});
+				frappe.pages["bank-transaction-wiz"].refresh =
+					function (/* wrapper */) {
+						window.location.reload(false);
+					};
+			});
+		}
 
-		frappe.model.with_doctype("Sales Invoice", () => {
-			erpnextfints.tools.assignWizardList =
-				new erpnextfints.tools.AssignWizardTool({
-					parent: me.parent,
-					doctype: "Sales Invoice",
-					page_title: __(me.page.title),
-				});
-			frappe.pages["bank-transaction-wiz"].refresh =
-				function (/* wrapper */) {
-					window.location.reload(false);
-				};
-		});
 	}
 };
 
@@ -109,6 +139,7 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 ) {
 	constructor(opts) {
 		super(opts);
+		this.kefiyaSettings = opts.kefiyaSettings
 		this.show();
 	}
 
@@ -116,18 +147,32 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 	setup_defaults() {
 		super.setup_defaults();
 		this.page_length = 100;
-		this.sort_by = "customer";
 		this.sort_order = "asc";
-		this.fields = [
-			"name",
-			"customer",
-			"customer_name",
-			"outstanding_amount",
-			"posting_date",
-			"due_date",
-			"currency",
-			"paid_amount",
-		];
+		if (this.kefiyaSettings.assign_against === 'Sales Invoice'){
+			this.sort_by = "customer";
+			this.fields = [
+				"name",
+				"customer",
+				"customer_name",
+				"outstanding_amount",
+				"posting_date",
+				"due_date",
+				"currency",
+				"paid_amount",
+			];
+		} else if (this.kefiyaSettings.assign_against === 'Purchase Invoice'){
+			this.sort_by = "supplier";
+			this.fields = [
+				"name",
+				"supplier",
+				"supplier_name",
+				"outstanding_amount",
+				"posting_date",
+				"due_date",
+				"currency",
+				"paid_amount",
+			];
+		}
 	}
 
 	setup_view() {
@@ -152,18 +197,28 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 
 	get_args() {
 		const args = super.get_args();
+		
+		if (this.kefiyaSettings.assign_against === 'Sales Invoice'){
+			return Object.assign({}, args, {
+				...args.filters.push(
+					["Sales Invoice", "docstatus", "=", 1],
+					["Sales Invoice", "outstanding_amount", ">", 0]
+				),
+			});
+		} else if(this.kefiyaSettings.assign_against === 'Purchase Invoice'){
+			return Object.assign({}, args, {
+				...args.filters.push(
+					["Purchase Invoice", "docstatus", "=", 1],
+					["Purchase Invoice", "outstanding_amount", ">", 0]
+				),
+			});
+		}
 
-		return Object.assign({}, args, {
-			...args.filters.push(
-				["Sales Invoice", "docstatus", "=", 1],
-				["Sales Invoice", "outstanding_amount", ">", 0]
-			),
-		});
 	}
 
-	get_row_call_args(customer, optionValue) {
+	get_row_call_args(party, optionValue, matchAgainst) {
 		let doctype, fields, filters, order_by;
-
+		
 		if (optionValue == "Payment Entry") {
 			doctype = "Payment Entry";
 			fields = [
@@ -175,7 +230,7 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 			];
 			filters = {
 				docstatus: 0,
-				party: customer,
+				party: party,
 			};
 			order_by = "posting_date";
 		} else if (optionValue == "Bank Transaction") {
@@ -187,11 +242,13 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 				"unallocated_amount", 
 				"description"
 			];
+			
 			filters = {
 				docstatus: 1,
-				party: customer,
+				party: party,
 				unallocated_amount: [">", 0],
-				deposit: [">", 0]
+				...(matchAgainst === "Sales Invoice" ? { deposit: [">", 0] } : {}),
+				...(matchAgainst === "Purchase Invoice" ? { withdrawal: [">", 0] } : {})
 			};
 			order_by = "date";
 		} else {
@@ -211,18 +268,9 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 	}
 
 	async render() {
-		const selectedOption = await frappe.call({
-			method: "frappe.client.get_value",
-			args: {
-				doctype: "Kefiya Settings",
-				filters: {},
-				fieldname: "show_entries_in_payment_assignment_wizard",
-			},
-		});
-
 		// Extract the selected value from "Kefiya Settings" doctype
-		const optionValue =
-			selectedOption.message.show_entries_in_payment_assignment_wizard;
+		const optionValue = this.kefiyaSettings.show_entries_in_payment_assignment_wizard
+		const matchAgainst = this.kefiyaSettings.assign_against
 
 		const me = this;
 		this.$result.find(".list-row-contain").remove();
@@ -231,17 +279,23 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 		$('[data-fieldname="title"]').remove();
 		
 		let rowHTML;
-
+		let party_value;
 		// me.data - list of sales invoice. the below code fetchs all payment entries(Payment Entry and Bank Transaction) associated with single sales invoice
 
 		for (const value of me.data) {
 			rowHTML = '<div class="list-row-contain"></div>';
 
+			if (matchAgainst==="Sales Invoice"){
+				party_value = value.customer
+			} else if (matchAgainst === "Purchase Invoice"){
+				party_value = value.supplier
+			}
+
 			const r = await frappe.call(
-				this.get_row_call_args(value.customer, optionValue)
+				this.get_row_call_args(party_value, optionValue, matchAgainst)
 			);
 
-			//r.message - list of all payment entries
+			// r.message - list of all payment entries
 			if (Array.isArray(r.message) && r.message.length) {
 				const row = $(rowHTML).data("data", value).appendTo(me.$result).get(0);
 
@@ -249,7 +303,8 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 					row,
 					value,
 					r.message,
-					optionValue
+					optionValue,
+					matchAgainst
 				);
 			}
 		}
@@ -264,7 +319,7 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 };
 
 erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
-	constructor(row, data, payments, optionValue) {
+	constructor(row, data, payments, optionValue, matchAgainst) {
 		this.data = data;
         // system default for date
 		let sysdefaults = frappe.sys_defaults;
@@ -283,6 +338,7 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 		});
 
 		this.data.optionValue = optionValue;
+		this.data.matchAgainst = matchAgainst;
 		this.row = row;
 		this.make();
 		this.bind_events();
