@@ -19,10 +19,12 @@ erpnextfints.tools.assignWizard = class assignWizard {
 		this.page = this.parent.page;
 		this.remove_page_buttons();
 		this.make();
+		this.add_custom()
 	}
 	remove_page_buttons(){
-		$('.custom-actions').remove()
+		// $('.custom-actions').remove()
 		$('.page-form').remove();	
+		$('.menu-btn-group').remove()
 	}
 
 	async fetchKefiyaSettings() {
@@ -38,10 +40,32 @@ erpnextfints.tools.assignWizard = class assignWizard {
 
 	async make() {
 		const me = this;
+		me.page.hide_icon_group();
 		me.clear_page_content();
 		let result = await this.fetchKefiyaSettings()
 		me.make_assignWizard_tool(result);
 		// me.add_actions();
+	}
+
+	add_custom(){
+		// add a dropdown button in a group
+		const me = this;
+		me.page.add_inner_button('Sales Invoice', () => this.change_match_against('Sales Invoice'), 'Match Against')
+		me.page.add_inner_button('Purchase Invoice', () => this.change_match_against('Purchase Invoice'), 'Match Against')		
+	}
+
+	change_match_against(selected_match){
+		const me = this;
+		frappe.call({
+			method: "erpnextfints.utils.client.change_match_against",
+			args: {
+				selected_match: selected_match
+			},
+			callback: function (r) {
+				me.make()
+			}
+		});
+
 	}
 
 	add_actions() {
@@ -277,6 +301,9 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 		$('[data-fieldname="name"]').remove();
 		$('[data-fieldname="status"]').remove();
 		$('[data-fieldname="title"]').remove();
+		$('[data-original-title="Refresh"]').remove();
+		$('.custom-btn-group').remove()
+		
 		
 		let rowHTML;
 		let party_value;
