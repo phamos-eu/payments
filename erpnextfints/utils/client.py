@@ -128,22 +128,21 @@ def auto_assign_payments():
 
 # Create Payment Entry record when reconcile button is clicked
 @frappe.whitelist()
-def create_payment_entry(bank_transaction_name, sales_invoice_name):
-    """Create payment entry document from sales invoice doctype.
+def create_payment_entry(bank_transaction_name, invoice_name, match_against):
+    """Create payment entry document from sales or purchase invoice doctype.
     """
-   
+
     bank_transaction = frappe.get_doc("Bank Transaction", bank_transaction_name)
-    sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
+    invoice_doc = frappe.get_doc(match_against, invoice_name)
     
     unallocated_amount = bank_transaction.unallocated_amount
-    outstanding_amount = sales_invoice.outstanding_amount
+    outstanding_amount = invoice_doc.outstanding_amount
     paid_amount = outstanding_amount
 
     if unallocated_amount <= outstanding_amount:
         paid_amount = unallocated_amount
 
-
-    payment_entry = frappe.call("erpnext.accounts.doctype.payment_entry.payment_entry.get_payment_entry", 'Sales Invoice', sales_invoice_name)
+    payment_entry = frappe.call("erpnext.accounts.doctype.payment_entry.payment_entry.get_payment_entry", match_against, invoice_name)
 
     payment_entry.paid_amount = paid_amount
     payment_entry.reference_date = today()
@@ -175,37 +174,3 @@ def create_payment_entry(bank_transaction_name, sales_invoice_name):
     payment_entry.submit()
 
     return paid_amount, payment_entry.name
-
-
-@frappe.whitelist()
-def remove_sales_invoice_payment(sales_invoice_name):
-    pass
-    # sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
-    # total_paid_amount = sales_invoice.paid_amount
-    # frappe.db.sql("""
-    #     DELETE FROM `tabSales Invoice Payment`
-    #     WHERE parent = %s
-    # """, (sales_invoice_name,))
-    
-    # status="Draft"
-    # today = getdate()
-    # is_pos = 0
-
-    # if sales_invoice.outstanding_amount == 0 and getdate(sales_invoice.due_date) >= today:
-    #     status = "Unpaid"
-
-    # if sales_invoice.outstanding_amount > 0 and getdate(sales_invoice.due_date) >= today:
-    #     status = "Partly Paid"
-    #     is_pos = 1
-
-    # if getdate(sales_invoice.due_date) < today:
-    #     status = "Overdue"
-
-    
-    # sql_query = """
-    #     UPDATE `tabSales Invoice`
-    #     SET is_pos = %s, outstanding_amount = %s, paid_amount = %s, status = %s
-    #     WHERE name = %s
-    # """
-    
-    # frappe.db.sql(sql_query, (is_pos, total_paid_amount, 0, status, sales_invoice_name))

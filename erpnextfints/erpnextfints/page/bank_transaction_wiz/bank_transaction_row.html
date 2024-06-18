@@ -12,7 +12,8 @@
           👁️ {{ __("Hide") }}
           </button>
         </div>
-        
+
+        {% if matchAgainst == "Sales Invoice" %}
         <div class="col-sm-2 ellipsis">
           <a href="sales-invoice/{{ name }}">{{ name }}</a>
         </div>
@@ -21,6 +22,19 @@
           <br>
           {{customer_name}}
         </div>
+        {% endif %}
+
+        {% if matchAgainst == "Purchase Invoice" %}
+        <div class="col-sm-2 ellipsis">
+          <a href="purchase-invoice/{{ name }}">{{ name }}</a>
+        </div>
+        <div class="col-sm-2 ellipsis hidden-xs">
+          {{ supplier }} 
+          <br>
+          {{supplier_name}}
+        </div>
+        {% endif %}
+
         <div class="col-sm-2 ellipsis">
           {{ outstanding_amount }}
         </div>
@@ -50,7 +64,13 @@
     <div class="col-sm-2 ellipsis hidden-xs">
       {{ payment.party }}
       <br>
-      {{customer_name}}
+      {% if matchAgainst === "Sales Invoice" %}
+        {{customer_name}}
+      {% endif %}
+
+      {% if matchAgainst === "Purchase Invoice" %}
+        {{supplier_name}}
+      {% endif %}
     </div>
     <div class="col-sm-2 ellipsis">
       {{ payment.unallocated_amount }} {{ currency }}
@@ -87,7 +107,13 @@
     <div class="col-sm-2 ellipsis hidden-xs">
       {{ payment.party }}
       <br>
-      {{customer_name}}
+      {% if matchAgainst === "Sales Invoice" %}
+        {{customer_name}}
+      {% endif %}
+
+      {% if matchAgainst === "Purchase Invoice" %}
+        {{supplier_name}}
+      {% endif %}
     </div>
     <div class="col-sm-2 ellipsis">
       

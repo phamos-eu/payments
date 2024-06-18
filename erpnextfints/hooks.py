@@ -42,7 +42,6 @@ app_license = "MIT"
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 doctype_js = {
     "Payment Entry": "public/js/payment_entry_doctype.js",
-    "Sales Invoice": "public/js/sales_invoice_doctype.js"
     }
 
 # Home Pages
