@@ -174,3 +174,9 @@ def create_payment_entry(bank_transaction_name, invoice_name, match_against):
     payment_entry.submit()
 
     return paid_amount, payment_entry.name
+
+@frappe.whitelist()
+def change_match_against(selected_match):
+    kefiya_setting = frappe.get_single("Kefiya Settings")
+    kefiya_setting.assign_against = selected_match
+    kefiya_setting.save()

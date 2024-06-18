@@ -26,6 +26,7 @@
   {
    "fieldname": "assign_against",
    "fieldtype": "Select",
+   "hidden": 1,
    "label": "Match Against",
    "options": "Sales Invoice\nPurchase Invoice"
   }
@@ -33,7 +34,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-06-17 12:55:34.332563",
+ "modified": "2024-06-18 16:34:12.837293",
  "modified_by": "Administrator",
  "module": "ERPNextFinTS",
  "name": "Kefiya Settings",
