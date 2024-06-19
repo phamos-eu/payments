@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 from . import __version__ as app_version  # noqa: F401
 
 app_name = "erpnextfints"
-app_title = "ERPNextFinTS"
+app_title = "Kefiya"
 app_publisher = "jHetzer"
 app_description = "FinTS Connector for ERPNext (Germany)"
 app_icon = "fa fa-university"
