@@ -109,12 +109,12 @@ class ImportPaymentEntry:
             )
 
             transaction_id = hashlib.md5(uniquestr.encode()).hexdigest()
-            if frappe.db.exists(
-                'Payment Entry', {
-                    'reference_no': transaction_id
-                }
-            ):
-                continue
+            # if frappe.db.exists(
+            #     'Payment Entry', {
+            #         'reference_no': transaction_id
+            #     }
+            # ):
+            #     continue
 
             if status == 'c':
                 payment_type = 'Receive'
