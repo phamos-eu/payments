@@ -18,7 +18,7 @@ from frappe.utils.file_manager import (
     get_file,
     get_content_hash,
 )
-from .import_payment import ImportPaymentEntry
+from .import_bank_transaction import ImportBankTransaction
 from .assign_payment_controller import AssignmentController
 
 
@@ -210,7 +210,7 @@ class FinTSController:
                 _("Start transaction import"), 40, reload=False
             )
             curr_doc = frappe.get_doc("FinTS Import", fints_import)
-            new_payments = None
+            new_bank_transactions = None
             tansactions = self.get_fints_transactions(
                 curr_doc.from_date,
                 curr_doc.to_date
@@ -238,10 +238,10 @@ class FinTSController:
                 curr_doc.start_date = tansactions[0]["date"]
                 curr_doc.end_date = tansactions[-1]["date"]
 
-                importer = ImportPaymentEntry(self.fints_login, self.interactive)
+                importer = ImportBankTransaction(self.fints_login, self.interactive)
                 importer.fints_import(tansactions)
 
-                if len(importer.payment_entries) == 0:
+                if len(importer.bank_transactions) == 0:
                     frappe.msgprint(_("No new payments found"))
                 else:
                     # Save payment entries
@@ -250,20 +250,20 @@ class FinTSController:
                     frappe.msgprint(_(
                         "Found a total of '{0}' payments"
                     ).format(
-                        len(importer.payment_entries)
+                        len(importer.bank_transactions)
                     ))
-                new_payments = importer.payment_entries
+                new_bank_transactions = importer.bank_transactions
 
             curr_doc.submit()
             self.interactive.show_progress_realtime(
-                _("Payment entry import completed"), 100, reload=False
+                _("Bank Transaction import completed"), 100, reload=False
             )
 
-            auto_assignment = AssignmentController().auto_assign_payments()
+            # auto_assignment = AssignmentController().auto_assign_payments()
             return {
                 "transactions": tansactions[:10],
-                "payments": new_payments,
-                "assignment": auto_assignment
+                "payments": new_bank_transactions,
+                # "assignment": auto_assignment
             }
         except Exception as e:
             frappe.throw(_(
