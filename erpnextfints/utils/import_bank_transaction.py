@@ -111,7 +111,7 @@ class ImportBankTransaction:
             transaction_id = hashlib.md5(uniquestr.encode()).hexdigest()
             if frappe.db.exists(
                 'Bank Transaction', {
-                    'reference_no': transaction_id
+                    'reference_number': transaction_id
                 }
             ):
                 continue
@@ -144,10 +144,16 @@ class ImportBankTransaction:
             else:
                 remarks = '{0} {1}'.format(posting_text, purpose)
 
+            default_bank_account = frappe.db.get_value(party_type, party['party'], "default_bank_account")
+            bank_party_account_number = ""
+            if default_bank_account:
+                bank_party_account_number = frappe.db.get_value("Bank Account", default_bank_account, "bank_account_no")
+
             bank_transaction = frappe.get_doc({
                 'doctype': 'Bank Transaction',
                 'date': date,
                 'status': 'Unreconciled',
+                'bank_account': self.fints_login.erpnext_account,
                 'company': self.fints_login.company,
                 'deposit': deposit,
                 'withdrawal': withdrawal,
@@ -156,7 +162,8 @@ class ImportBankTransaction:
                 'unallocated_amount': amount,
                 'party_type': party_type,
                 'party': party['party'],
-                'bank_party_name': frappe.db.get_value(party_type, party['party'], "default_bank_account"),
+                'bank_party_name': default_bank_account,
+                'bank_party_account_number': bank_party_account_number,
                 'bank_party_iban': t['applicant_iban']
             })
             bank_transaction.insert()
