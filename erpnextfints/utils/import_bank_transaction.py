@@ -97,7 +97,9 @@ class ImportBankTransaction:
 
             party, party_type = get_bank_account_data(applicant_iban)
 
-            default_bank_account = frappe.db.get_value(party_type, party, "default_bank_account")
+            default_bank_account = None
+            if party and party_type:
+                default_bank_account = frappe.db.get_value(party_type, party, "default_bank_account")
             bank_party_account_number = ""
             if default_bank_account:
                 bank_party_account_number = frappe.db.get_value("Bank Account", default_bank_account, "bank_account_no")
