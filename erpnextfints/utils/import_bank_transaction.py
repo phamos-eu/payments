@@ -5,6 +5,7 @@ import hashlib
 import frappe
 from frappe import _
 
+from erpnextfints.erpnextfints.doctype.kefiya_bank_statement_import.kefiya_bank_statement_import import get_bank_account_data
 
 class ImportBankTransaction:
     def __init__(self, fints_login, interactive, allow_error=False):
@@ -14,43 +15,6 @@ class ImportBankTransaction:
         self.default_customer = fints_login.default_customer
         self.default_supplier = fints_login.default_supplier
         self.interactive = interactive
-
-    def get_party_by_value(self, sender, party_type, iban=None):
-        """
-        Get party by sender or iban.
-
-        If there is a Bank Account with this `iban` for this `party_type`,
-        return the corresponding party.
-        Else, look for a party of `party_type` named `sender`.
-        Else, use default party.
-        """
-        party = None
-
-        if iban:
-            bank_accounts = frappe.get_list(
-                'Bank Account',
-                fields=['name', 'iban', 'party', 'party_type'],
-                filters={
-                    'iban': ('=', iban),
-                    'party_type': ('=', party_type),
-                    'party': ('!=', '')
-                }
-            )
-            if len(bank_accounts) == 1:
-                party = bank_accounts[0].party
-
-        is_default = False
-        if not party:
-            if frappe.db.exists(party_type, sender):
-                party = sender
-            elif party_type == 'Customer':
-                party = self.default_customer
-                is_default = True
-            elif party_type == 'Supplier':
-                party = self.default_supplier
-                is_default = True
-
-        return {'is_default': is_default, 'party': party}
 
     def fints_import(self, fints_transaction):
         # F841 total_items = len(fints_transaction)
@@ -131,20 +95,9 @@ class ImportBankTransaction:
                 deposit = 0
                 withdrawal = amount
 
-            party = self.get_party_by_value(
-                applicant_name, party_type, applicant_iban
-            )
-            if party['is_default']:
-                remarks = '{0} "{1}":\n{2} {3}'.format(
-                    remarkType,
-                    applicant_name,
-                    posting_text,
-                    purpose
-                )
-            else:
-                remarks = '{0} {1}'.format(posting_text, purpose)
+            party, party_type = get_bank_account_data(applicant_iban)
 
-            default_bank_account = frappe.db.get_value(party_type, party['party'], "default_bank_account")
+            default_bank_account = frappe.db.get_value(party_type, party, "default_bank_account")
             bank_party_account_number = ""
             if default_bank_account:
                 bank_party_account_number = frappe.db.get_value("Bank Account", default_bank_account, "bank_account_no")
@@ -157,14 +110,16 @@ class ImportBankTransaction:
                 'company': self.fints_login.company,
                 'deposit': deposit,
                 'withdrawal': withdrawal,
+                'description': purpose,
                 'reference_number': transaction_id,
                 'allocated_amount': 0,
                 'unallocated_amount': amount,
                 'party_type': party_type,
-                'party': party['party'],
+                'party': party,
                 'bank_party_name': default_bank_account,
                 'bank_party_account_number': bank_party_account_number,
-                'bank_party_iban': t['applicant_iban']
+                'bank_party_iban': t['applicant_iban'],
+                'docstatus': 1
             })
             bank_transaction.insert()
             self.bank_transactions.append(bank_transaction)
