@@ -72,7 +72,7 @@ class KefiyaBankStatementImport(Document):
 			description = row_data[4]
 			bank_party_iban = row_data[5]
 			bank_party_name = row_data[3]
-			party, party_type = self.get_bank_account_data(bank_party_iban)
+			party, party_type = get_bank_account_data(bank_party_iban)
 			deposit, withdrawal = self.format_amount_utf8(row_data[7])	
 
 			bank_transaction.update({
@@ -132,7 +132,7 @@ class KefiyaBankStatementImport(Document):
 			description = row_data[4].replace('"', '')
 			bank_party_iban = row_data[5].replace('"', '')
 			bank_party_name = row_data[3].replace('"', '')
-			party, party_type = self.get_bank_account_data(bank_party_iban)
+			party, party_type = get_bank_account_data(bank_party_iban)
 			deposit, withdrawal = self.format_amount_iso(row_data[7])			
 
 			bank_transaction.update({
@@ -194,13 +194,13 @@ class KefiyaBankStatementImport(Document):
 
 		return [deposit, withdrawal]
 	
-	def get_bank_account_data(self, IBAN):
-		party, party_type = '', ''
-		bank_account_exists = frappe.db.exists('Bank Account', {'iban': IBAN})
-		
-		if bank_account_exists:
-			bank_account_doc = frappe.get_doc('Bank Account', {'iban': IBAN})
-			party = bank_account_doc.party
-			party_type = bank_account_doc.party_type
+def get_bank_account_data(IBAN):
+	party, party_type = '', ''
+	bank_account_exists = frappe.db.exists('Bank Account', {'iban': IBAN})
+	
+	if bank_account_exists:
+		bank_account_doc = frappe.get_doc('Bank Account', {'iban': IBAN})
+		party = bank_account_doc.party
+		party_type = bank_account_doc.party_type
 
-		return [party, party_type]
+	return [party, party_type]
