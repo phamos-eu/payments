@@ -57,7 +57,9 @@ class KefiyaBankStatementImport(Document):
 
 	def get_file_from_url(self, file_url):
 		
-		file_path = get_file_path(file_url.split('/')[-1])
+		base = frappe.local.site_path
+		file_path = base + file_url
+
 		if not os.path.exists(file_path):
 			frappe.throw(_('File not found: {0}').format(file_path))
 		

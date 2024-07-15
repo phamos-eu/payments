@@ -1,4 +1,5 @@
-<!-- Sales Invoice -->
+<!-- Sales Invoice or Purchase Invoice -->
+{% if matchAgainst == "Sales Invoice" || matchAgainst == "Purchase Invoice" %}
 <div class="list-row payment-assign-wizard-item list-xs-height mb-4">
   <div>
     <div class="clickable-section" data-name="{{ name }}">
@@ -44,6 +45,7 @@
     </div>
   </div>
 </div>
+{% endif %}
 
 <!-- Payment Entries -->
 {% if optionValue == "Payment Entry" %} {% for payment in payments %}
@@ -89,19 +91,31 @@
 <div class="list-row payment-assign-wizard-item" style="height: auto">
   <div class="row">
     <div class="col-sm-2" style="padding-right: 0px">
+      {% if matchAgainst === "Sales Invoice" || matchAgainst === "Purchase Invoice" %}
+        <button
+          class="reconcile_transaction btn btn-default btn-xs center-block"
+          data-name="{{ payment.name }}"
+          style="margin-left: 10px;"
+        >
+        💰 {{ __("Reconcile") }}
+        </button>
+      {% endif %}
+
+      {% if matchAgainst === "Journal Entry"%}
       <button
-        class="reconcile_transaction btn btn-default btn-xs center-block"
+        class="create_journal_entry btn btn-default btn-xs center-block"
         data-name="{{ payment.name }}"
         style="margin-left: 10px;"
       >
-      💰 {{ __("Reconcile") }}
+      💰 {{ __("Create") }}
       </button>
+    {% endif %}
     </div>
 
     <div class="col-sm-2 ellipsis hidden-xs" style="white-space: normal">
       {{ payment.description}}
-      <!-- <br>
-      <a href="bank-transaction/{{ payment.name }}">{{ payment.name }}</a> -->
+      <br>
+      <a href="bank-transaction/{{ payment.name }}">{{ payment.name }}</a>
     </div>
 
     <div class="col-sm-2 ellipsis hidden-xs">
