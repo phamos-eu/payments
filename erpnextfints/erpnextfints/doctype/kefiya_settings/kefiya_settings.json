@@ -28,13 +28,13 @@
    "fieldtype": "Select",
    "hidden": 1,
    "label": "Match Against",
-   "options": "Sales Invoice\nPurchase Invoice"
+   "options": "Sales Invoice\nPurchase Invoice\nJournal Entry"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-06-18 16:34:12.837293",
+ "modified": "2024-07-12 14:03:38.030822",
  "modified_by": "Administrator",
  "module": "ERPNextFinTS",
  "name": "Kefiya Settings",

@@ -51,7 +51,8 @@ erpnextfints.tools.assignWizard = class assignWizard {
 		// add a dropdown button in a group
 		const me = this;
 		me.page.add_inner_button('Sales Invoice', () => this.change_match_against('Sales Invoice'), 'Match Against')
-		me.page.add_inner_button('Purchase Invoice', () => this.change_match_against('Purchase Invoice'), 'Match Against')		
+		me.page.add_inner_button('Purchase Invoice', () => this.change_match_against('Purchase Invoice'), 'Match Against')
+		me.page.add_inner_button('Journal Entry', () => this.change_match_against('Journal Entry'), 'Match Against')		
 	}
 
 	change_match_against(selected_match){
@@ -153,7 +154,22 @@ erpnextfints.tools.assignWizard = class assignWizard {
 						window.location.reload(false);
 					};
 			});
+		} else if (kefiyaSettings.assign_against==='Journal Entry'){
+			frappe.model.with_doctype("Journal Entry", () => {
+				erpnextfints.tools.assignWizardList =
+					new erpnextfints.tools.AssignWizardTool({
+						parent: me.parent,
+						doctype: "Journal Entry",
+						page_title: __(me.page.title),
+						kefiyaSettings: kefiyaSettings
+					});
+				frappe.pages["bank-transaction-wiz"].refresh =
+					function (/* wrapper */) {
+						window.location.reload(false);
+					};
+			});
 		}
+
 
 	}
 };
@@ -196,6 +212,10 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 				"currency",
 				"paid_amount",
 			];
+		} else if (this.kefiyaSettings.assign_against === 'Journal Entry'){
+			this.fields = [
+				
+			];
 		}
 	}
 
@@ -236,6 +256,12 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 					["Purchase Invoice", "outstanding_amount", ">", 0]
 				),
 			});
+		} else if(this.kefiyaSettings.assign_against === 'Journal Entry'){
+			return Object.assign({}, args, {
+				...args.filters.push(
+					["Journal Entry", "docstatus", "=", 1],
+				),
+			});
 		}
 
 	}
@@ -262,6 +288,7 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 			fields = [
 				"name", 
 				"party",
+				"party_type",
 				"date", 
 				"unallocated_amount", 
 				"description"
@@ -269,8 +296,8 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 			
 			filters = {
 				docstatus: 1,
-				party: party,
 				unallocated_amount: [">", 0],
+				...(matchAgainst === "Journal Entry" ? {} : { party }),
 				...(matchAgainst === "Sales Invoice" ? { deposit: [">", 0] } : {}),
 				...(matchAgainst === "Purchase Invoice" ? { withdrawal: [">", 0] } : {})
 			};
@@ -307,34 +334,54 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 		
 		let rowHTML;
 		let party_value;
-		// me.data - list of sales invoice. the below code fetchs all payment entries(Payment Entry and Bank Transaction) associated with single sales invoice
+		rowHTML = '<div class="list-row-contain"></div>';
 
-		for (const value of me.data) {
-			rowHTML = '<div class="list-row-contain"></div>';
-
-			if (matchAgainst==="Sales Invoice"){
-				party_value = value.customer
-			} else if (matchAgainst === "Purchase Invoice"){
-				party_value = value.supplier
-			}
-
+		if (matchAgainst=="Journal Entry"){
 			const r = await frappe.call(
 				this.get_row_call_args(party_value, optionValue, matchAgainst)
 			);
-
-			// r.message - list of all payment entries
+			
+			// r.message - list of all bank transaction
 			if (Array.isArray(r.message) && r.message.length) {
-				const row = $(rowHTML).data("data", value).appendTo(me.$result).get(0);
+				const row = $(rowHTML).data("data", null).appendTo(me.$result).get(0);
 
 				new erpnextfints.tools.AssignWizardRow(
 					row,
-					value,
+					null,
 					r.message,
 					optionValue,
 					matchAgainst
 				);
 			}
+		} else {
+			// me.data - list of sales invoice/purchase invoice. the below code fetchs all payment entries(Payment Entry and Bank Transaction) associated with single sales invoice
+			for (const value of me.data) {
+					
+				if (matchAgainst==="Sales Invoice"){
+					party_value = value.customer
+				} else if (matchAgainst === "Purchase Invoice"){
+					party_value = value.supplier
+				}
+	
+				const r = await frappe.call(
+					this.get_row_call_args(party_value, optionValue, matchAgainst)
+				);
+	
+				// r.message - list of all payment entries
+				if (Array.isArray(r.message) && r.message.length) {
+					const row = $(rowHTML).data("data", value).appendTo(me.$result).get(0);
+	
+					new erpnextfints.tools.AssignWizardRow(
+						row,
+						value,
+						r.message,
+						optionValue,
+						matchAgainst
+					);
+				}
+			}
 		}
+
 	}
 
 	render_header() {
@@ -347,33 +394,52 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 
 erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 	constructor(row, data, payments, optionValue, matchAgainst) {
-		this.data = data;
         // system default for date
 		let sysdefaults = frappe.sys_defaults;
 		let date_format = sysdefaults && sysdefaults.date_format ? sysdefaults.date_format : "yyyy-mm-dd";
 		date_format = date_format.replace('yyyy', 'YYYY').replace('dd', 'DD').replace('mm', 'MM');
 
-		// formatting date based on system defaults
-		this.data.outstanding_amount = format_currency(this.data.outstanding_amount, this.data.currency); 
-		this.data.posting_date = moment(this.data.posting_date).format(date_format);
-
-		this.data.payments = payments;
-
-		this.data.payments.forEach(payment => {
-			payment.date = moment(payment.date).format(date_format);
-			payment.unallocated_amount = format_currency(payment.unallocated_amount, this.data.currency);
-		});
-
-		this.data.optionValue = optionValue;
-		this.data.matchAgainst = matchAgainst;
-		this.row = row;
-		this.make();
-		this.bind_events();
+		if (matchAgainst=="Journal Entry"){
+			this.data = {}
+			this.row = row
+			this.data.payments = payments
+			this.data.payments.forEach(payment => {
+				payment.date = moment(payment.date).format(date_format);
+				payment.unallocated_amount = format_currency(payment.unallocated_amount, this.data.currency);
+			});
+			this.data.optionValue = optionValue;
+			this.data.matchAgainst = matchAgainst;
+			this.make(matchAgainst)
+			this.bind_events();
+		} else {
+			this.data = data;
+			// formatting date based on system defaults
+			this.data.outstanding_amount = format_currency(this.data.outstanding_amount, this.data.currency); 
+			this.data.posting_date = moment(this.data.posting_date).format(date_format);
+	
+			this.data.payments = payments;
+	
+			this.data.payments.forEach(payment => {
+				payment.date = moment(payment.date).format(date_format);
+				payment.unallocated_amount = format_currency(payment.unallocated_amount, this.data.currency);
+			});
+	
+			this.data.optionValue = optionValue;
+			this.data.matchAgainst = matchAgainst;
+			this.row = row;
+			this.make(matchAgainst);
+			this.bind_events();
+		}
 	}
 
-	make() {
-	
-		$(this.row).append(frappe.render_template("bank_transaction_row", this.data));
+	make(matchAgainst) {
+		if (matchAgainst=="Journal Entry"){
+			// frappe.render_template("bank_tr", this.data)
+			$(this.row).append(frappe.render_template("bank_transaction_row", this.data));
+		} else {
+			$(this.row).append(frappe.render_template("bank_transaction_row", this.data));
+		}
+		
 	}
 
 	bind_events() {
@@ -438,6 +504,120 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 				},
 			});
 
+		});
+
+		// create journal entry from bank transaction
+		$(me.row).on("click", ".create_journal_entry", function () {
+			const filtered_bts = me.data.payments.filter(payment => payment.name === $(this).attr("data-name"));
+
+			let defalutValue = filtered_bts[0].party_type ? filtered_bts[0].party_type:filtered_bts[0].deposit > 0 ? 'Customer': 'Supplier'
+
+			let dialog = new frappe.ui.Dialog({
+				title: __('Create Journal Entry'),
+				fields: [
+				{
+					label: 'Reference Number',
+					fieldname: 'reference_number',
+					fieldtype: 'Data',
+					reqd: 1,
+					default: filtered_bts[0].description,
+				}, {
+					label: 'Posting Date',
+					fieldname: 'posting_date',
+					fieldtype: 'Date',
+					default: "Today",
+					reqd: 1,
+				}, {
+					label: 'Cheque/Reference Date',
+					fieldname: 'reference_date',
+					fieldtype: 'Date',
+					default: "Today",
+					reqd: 1,
+				}, {
+					label: 'Mode of Payment',
+					fieldname: 'mode_of_payment',
+					fieldtype: 'Link',
+					options: "Mode of Payment",
+				}, {
+					fieldname: 'col_break1',
+					fieldtype: 'Column Break',
+				}, {
+					label: 'Journal Entry Type',
+					fieldname: 'journal_entry_type',
+					fieldtype: 'Select',
+					options:
+					"Journal Entry\nInter Company Journal Entry\nBank Entry\nCash Entry\nCredit Card Entry\nDebit Note\nCredit Note\nContra Entry\nExcise Entry\nWrite Off Entry\nOpening Entry\nDepreciation Entry\nExchange Rate Revaluation\nDeferred Revenue\nDeferred Expense",
+					default: "Bank Entry",
+					reqd: 1,
+				}, {
+					label: 'Account',
+					fieldname: 'second_account',
+					fieldtype: 'Link',
+					options: "Account",
+					get_query: () => {
+						return {
+							filters: {
+								is_group: 0,
+								// company: this.company,
+							},
+						};
+					},
+					reqd: 1,
+					
+				}, {
+					label: 'Party Type',
+					fieldname: 'party_type',
+					fieldtype: 'Link',
+					options: "Party Type",
+					default: defalutValue,
+					onchange: function(){
+						dialog.fields_dict['party'].df.options = dialog.get_value('party_type');
+						dialog.fields_dict['party'].refresh();
+					}
+				}, {
+					label: 'Party',
+					fieldname: 'party',
+					fieldtype: 'Link',
+					options: defalutValue,
+					default: filtered_bts[0].party,
+				},
+				],
+				primary_action_label: __('Submit'),
+				primary_action: function(/* values */) {
+
+					const bank_transaction_name = filtered_bts[0].name
+					const reference_number = dialog.get_value("reference_number")
+					const reference_date = dialog.get_value("reference_date")
+					const posting_date = dialog.get_value("posting_date")
+					const entry_type = dialog.get_value("journal_entry_type")
+					const second_account = dialog.get_value("second_account")
+					const mode_of_payment = dialog.get_value("mode_of_payment")
+					const party_type = dialog.get_value("party_type")
+					const party = dialog.get_value("party")
+
+					frappe.call({
+						method: "erpnext.accounts.doctype.bank_reconciliation_tool.bank_reconciliation_tool.create_journal_entry_bts",
+						args: {
+							bank_transaction_name,
+							reference_number,
+							reference_date,
+							posting_date,
+							entry_type,
+							second_account,
+							mode_of_payment,
+							party_type,
+							party
+						},
+						callback: function(response) {
+							if(response.message) {
+								erpnextfints.tools.assignWizardList.refresh();
+								dialog.hide();
+							}
+						}
+					});
+				},
+			});
+			dialog.show();
 		});
 	}
 };
