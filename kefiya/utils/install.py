@@ -9,7 +9,7 @@ from frappe import _
 
 def before_install():  # noqa: D103
     if frappe.utils.sys.version_info.major < 3:
-        print(_("ERPNextFinTS requires Python version 3.4 or newer"))
+        print(_("Kefiya requires Python version 3.4 or newer"))
 
 
 def after_install():  # noqa: D103
