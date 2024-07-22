@@ -147,7 +147,7 @@
 		"set_multiple": true,
 		"QUnit": true,
 		"Chart": true,
-		"erpnextfints": true,
+		"kefiya": true,
 		"..": true
 	}
 }
