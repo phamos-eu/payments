@@ -1,14 +1,14 @@
 // Copyright (c) 2019, jHetzer and contributors
 // For license information, please see license.txt
 
-{% include "erpnextfints/public/js/controllers/iban_tools.js" %}
+{% include "kefiya/public/js/controllers/iban_tools.js" %}
 
 frappe.ui.form.on('Payment Entry', {
 	onload: function(frm) {
 		getBankAccountPermission(frm);
 	},
 	create_party_bank_account: function(frm) {
-		erpnextfints.iban_tools.setPartyBankAccount(frm);
+		kefiya.iban_tools.setPartyBankAccount(frm);
 	},
 	paid_from: function(frm) {
 		hideBanlAccountButton(frm);
@@ -24,7 +24,7 @@ frappe.ui.form.on('Payment Entry', {
 	},
 	iban: function(frm) {
 		// remove error mark if IBAN is valid or field is empty
-		if(erpnextfints.iban_tools.isValidIBANNumber(frm.doc.iban) || !frm.doc.iban){
+		if(kefiya.iban_tools.isValidIBANNumber(frm.doc.iban) || !frm.doc.iban){
 			$('div[data-fieldname="iban"]').removeClass("has-error");
 			hideBanlAccountButton(frm);
 		}else{
@@ -36,7 +36,7 @@ frappe.ui.form.on('Payment Entry', {
 		}
 	},
 	bic : function(frm) {
-		if(erpnextfints.iban_tools.isValidBic(frm.doc.bic) || !frm.doc.bic){
+		if(kefiya.iban_tools.isValidBic(frm.doc.bic) || !frm.doc.bic){
 			$('div[data-fieldname="bic"]').removeClass("has-error");
 		}else{
 			// use timeout to prevent override
@@ -56,7 +56,7 @@ var hideBanlAccountButton = function(frm) {
 
 var getBankAccountPermission = function(frm) {
 	frappe.call({
-		method: "erpnextfints.utils.client.has_page_permission",
+		method: "kefiya.utils.client.has_page_permission",
 		args: {
 			page_name: 'bank_account_wizard'
 		},

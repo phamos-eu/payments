@@ -1,14 +1,14 @@
 // Copyright (c) 2019, jHetzer and contributors
 // For license information, please see license.txt
-frappe.provide("erpnextfints.tools");
+frappe.provide("kefiya.tools");
 
 frappe.pages["assign_payment_entries"].on_page_load = function (wrapper) {
-	erpnextfints.tools.assignWizardObj = new erpnextfints.tools.assignWizard(
+	kefiya.tools.assignWizardObj = new kefiya.tools.assignWizard(
 		wrapper
 	);
 };
 
-erpnextfints.tools.assignWizard = class assignWizard {
+kefiya.tools.assignWizard = class assignWizard {
 	constructor(wrapper) {
 		this.page = frappe.ui.make_app_page({
 			parent: wrapper,
@@ -36,7 +36,7 @@ erpnextfints.tools.assignWizard = class assignWizard {
 			__("Auto assign"),
 			function () {
 				frappe.call({
-					method: "erpnextfints.utils.client.auto_assign_payments",
+					method: "kefiya.utils.client.auto_assign_payments",
 					args: {},
 					callback: function (r) {
 						if (r.message.success === true) {
@@ -64,7 +64,7 @@ erpnextfints.tools.assignWizard = class assignWizard {
 							} else {
 								result.push(__("No payments were found for assignment"));
 							}
-							erpnextfints.tools.assignWizardList.refresh();
+							kefiya.tools.assignWizardList.refresh();
 							frappe.msgprint(result);
 						} else {
 							frappe.msgprint(__("Failed to assign payments"));
@@ -87,8 +87,8 @@ erpnextfints.tools.assignWizard = class assignWizard {
 		// ensure that the metadata for the "Sales Invoice" DocType is loaded before proceeding with the wizard setup(AssignWizardTool).
 
 		frappe.model.with_doctype("Sales Invoice", () => {
-			erpnextfints.tools.assignWizardList =
-				new erpnextfints.tools.AssignWizardTool({
+			kefiya.tools.assignWizardList =
+				new kefiya.tools.AssignWizardTool({
 					parent: me.parent,
 					doctype: "Sales Invoice",
 					page_title: __(me.page.title),
@@ -101,7 +101,7 @@ erpnextfints.tools.assignWizard = class assignWizard {
 	}
 };
 
-erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
+kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 	frappe.views.BaseList
 ) {
 	constructor(opts) {
@@ -236,7 +236,7 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 			if (Array.isArray(r.message) && r.message.length) {
 				const row = $(rowHTML).data("data", value).appendTo(me.$result).get(0);
 
-				new erpnextfints.tools.AssignWizardRow(
+				new kefiya.tools.AssignWizardRow(
 					row,
 					value,
 					r.message,
@@ -255,7 +255,7 @@ erpnextfints.tools.AssignWizardTool = class AssignWizardTool extends (
 	}
 };
 
-erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
+kefiya.tools.AssignWizardRow = class AssignWizardRow {
 	constructor(row, data, payments, optionValue) {
 		this.data = data;
 		this.data.payments = payments;
@@ -278,14 +278,14 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 		// assign payment entries to sales invoice
 		$(me.row).on("click", ".assign_payment", function () {
 			frappe.call({
-				method: "erpnextfints.utils.client.add_payment_reference",
+				method: "kefiya.utils.client.add_payment_reference",
 				args: {
 					sales_invoice: me.data.name,
 					payment_entry: $(this).attr("data-name"),
 				},
 				callback(/* r */) {
 					// Refresh page after asignment
-					erpnextfints.tools.assignWizardList.refresh();
+					kefiya.tools.assignWizardList.refresh();
 				},
 			});
 		});
@@ -297,7 +297,7 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 			const bank_transaction_name = $(this).attr("data-name");
 			
 			frappe.call({
-				method: "erpnextfints.utils.client.add_sales_invoice_payment",
+				method: "kefiya.utils.client.add_sales_invoice_payment",
 				args: {
 					bank_transaction_name: bank_transaction_name,
 					sales_invoice_name: sales_invoice_name,
@@ -322,7 +322,7 @@ erpnextfints.tools.AssignWizardRow = class AssignWizardRow {
 						},
 						callback(/* r */) {
 							// Refresh page after asignment
-							erpnextfints.tools.assignWizardList.refresh();
+							kefiya.tools.assignWizardList.refresh();
 						},
 					});
 				},

@@ -1,9 +1,9 @@
 // Copyright (c) 2019, jHetzer and contributors
 // For license information, please see license.txt
 
-frappe.provide("erpnextfints.iban_tools");
+frappe.provide("kefiya.iban_tools");
 
-erpnextfints.iban_tools = {
+kefiya.iban_tools = {
 	// https://stackoverflow.com/questions/21928083/iban-validation-check
 	isValidIBANNumber: function(input) {
 		var CODE_LENGTHS = {
@@ -28,7 +28,7 @@ erpnextfints.iban_tools = {
 			return letter.charCodeAt(0) - 55;
 		});
 		// final check
-		return erpnextfints.iban_tools.mod97(digits);
+		return kefiya.iban_tools.mod97(digits);
 	},
 	mod97: function(string) {
 		var checksum = string.slice(0, 2), fragment;
@@ -91,7 +91,7 @@ erpnextfints.iban_tools = {
 	},
 	createPartyBankAccount: function(frm, bankInfo, resultCallback) {
 		frappe.call({
-			method: "erpnextfints.utils.client.new_bank_account",
+			method: "kefiya.utils.client.new_bank_account",
 			args: {
 				payment_doc: frm,
 				bankData: bankInfo.bankData,
@@ -105,7 +105,7 @@ erpnextfints.iban_tools = {
 	},
 	setPartyBankAccount: function(frm, callback) {
 		
-		erpnextfints.iban_tools.getBankDetailsByIBAN(frm.doc.bank_party_iban
+		kefiya.iban_tools.getBankDetailsByIBAN(frm.doc.bank_party_iban
 			, function(data) {
 			
 			if (data.checkResults.bankCode) {
@@ -215,7 +215,7 @@ erpnextfints.iban_tools = {
 									data.bankData.bankCode = dialog.get_value("bank_code")
 									data.bankData.bic = dialog.get_value('bic')
 									
-									erpnextfints.iban_tools.createPartyBankAccount(frm.doc, data, callback);
+									kefiya.iban_tools.createPartyBankAccount(frm.doc, data, callback);
 									dialog.hide();
 								},
 							});

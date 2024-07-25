@@ -1,15 +1,15 @@
 // Copyright (c) 2019, jHetzer and contributors
 // For license information, please see license.txt
-frappe.provide("erpnextfints.tools");
+frappe.provide("kefiya.tools");
 
-{% include "erpnextfints/public/js/controllers/iban_tools.js" %}
+{% include "kefiya/public/js/controllers/iban_tools.js" %}
 
 frappe.pages['bank_account_wizard'].on_page_load = function(wrapper) {
-	erpnextfints.tools.bankWizardObj = new erpnextfints.tools.bankWizard(
+	kefiya.tools.bankWizardObj = new kefiya.tools.bankWizard(
 		wrapper);
 };
 
-erpnextfints.tools.bankWizard = class BankWizard {
+kefiya.tools.bankWizard = class BankWizard {
 	constructor(wrapper) {
 		this.page = frappe.ui.make_app_page({
 			parent: wrapper,
@@ -45,13 +45,13 @@ erpnextfints.tools.bankWizard = class BankWizard {
 
 		me.page.add_menu_item(__("Create All"), function() {
 			function createAllBankAccount(data){
-				erpnextfints.iban_tools.setPartyBankAccount({
+				kefiya.iban_tools.setPartyBankAccount({
 					doc: data[0],
 				}, function(e) {
 					if (e.message.status == true) {
 						// me.row.remove();
-						erpnextfints.tools.bankWizardList.ref_items.splice(0,1);
-						erpnextfints.tools.bankWizardList.render();
+						kefiya.tools.bankWizardList.ref_items.splice(0,1);
+						kefiya.tools.bankWizardList.render();
 						setTimeout(
 							function(){
 								frappe.hide_msgprint();
@@ -63,7 +63,7 @@ erpnextfints.tools.bankWizard = class BankWizard {
 					}
 				});
 			}
-			createAllBankAccount(erpnextfints.tools.bankWizardList.ref_items);
+			createAllBankAccount(kefiya.tools.bankWizardList.ref_items);
 
 		}, true);
 	}
@@ -78,11 +78,11 @@ erpnextfints.tools.bankWizard = class BankWizard {
 	make_bankwizard_tool() {
 		const me = this;
 		frappe.call({
-			method: "erpnextfints.utils.client.get_missing_bank_accounts",
+			method: "kefiya.utils.client.get_missing_bank_accounts",
 			args: {},
 			callback(r) {
 				frappe.model.with_doctype("Bank Transaction", () => {
-					erpnextfints.tools.bankWizardList = new erpnextfints.tools.bankWizardTool({
+					kefiya.tools.bankWizardList = new kefiya.tools.bankWizardTool({
 						parent: me.parent,
 						doctype: "Bank Transaction",
 						page_title: __(me.page.title),
@@ -99,7 +99,7 @@ erpnextfints.tools.bankWizard = class BankWizard {
 };
 
 
-erpnextfints.tools.bankWizardTool = class BankWizardTool extends frappe.views.BaseList {
+kefiya.tools.bankWizardTool = class BankWizardTool extends frappe.views.BaseList {
 	constructor(opts) {
 		super(opts);
 		this.show();
@@ -129,14 +129,14 @@ erpnextfints.tools.bankWizardTool = class BankWizardTool extends frappe.views.Ba
 	}
 
 	before_refresh() {
-		// erpnextfints.tools.bankWizardObj.clear_page_content()
+		// kefiya.tools.bankWizardObj.clear_page_content()
 		frappe.model.with_doctype("Bank Transaction", () => {
 			frappe.call({
-				method: "erpnextfints.utils.client.get_missing_bank_accounts",
+				method: "kefiya.utils.client.get_missing_bank_accounts",
 				args: {},
 				callback(r) {
 					this.ref_items = r.message;
-					// erpnextfints.tools.bankWizardObj.make();
+					// kefiya.tools.bankWizardObj.make();
 				}
 			});
 		});
@@ -171,7 +171,7 @@ erpnextfints.tools.bankWizardTool = class BankWizardTool extends frappe.views.Ba
 				const row = $('<div class="list-row-container">').data("data",
 					value).appendTo(me.$result).get(0);
 				// new erpnext.accounts.ReconciliationRow(row, value);
-				new erpnextfints.tools.bankWizardRow(row, value);
+				new kefiya.tools.bankWizardRow(row, value);
 			}
 		});
 	}
@@ -183,7 +183,7 @@ erpnextfints.tools.bankWizardTool = class BankWizardTool extends frappe.views.Ba
 		}
 	}
 };
-erpnextfints.tools.bankWizardRow = class BankWizardRow {
+kefiya.tools.bankWizardRow = class BankWizardRow {
 	constructor(row, data) {
 		this.data = data;
 		this.row = row;
@@ -205,14 +205,14 @@ erpnextfints.tools.bankWizardRow = class BankWizardRow {
 		})
 		*/
 		$(me.row).on('click', '.new-bank-account', function() {
-			erpnextfints.iban_tools.setPartyBankAccount({
+			kefiya.iban_tools.setPartyBankAccount({
 				doc: me.data
 			}, function(e) {
 				if (e.message.status == true) {
-					var index = erpnextfints.tools.bankWizardList
+					var index = kefiya.tools.bankWizardList
 						.ref_items.findIndex(x => x.name === me.data.name);
 					if(index >= 0){
-						erpnextfints.tools.bankWizardList
+						kefiya.tools.bankWizardList
 							.ref_items.splice(index,1);
 					}
 					me.row.remove();
