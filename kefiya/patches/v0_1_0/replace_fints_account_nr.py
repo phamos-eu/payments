@@ -9,7 +9,7 @@ import frappe
 
 def execute(): # noqa E103
     doctype = "FinTS Login"
-    frappe.reload_doc("erpnextfints", "doctype", "fints_login")
+    frappe.reload_doc("kefiya", "doctype", "fints_login")
 
     for account in frappe.get_all(doctype):
         if frappe.db.has_column("FinTS Login", 'account_nr'):
