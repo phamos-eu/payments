@@ -1,11 +1,11 @@
 // Copyright (c) 2019, jHetzer and contributors
 // For license information, please see license.txt
 
-{% include "erpnextfints/public/js/controllers/fints_interactive.js" %}
+{% include "kefiya/public/js/controllers/fints_interactive.js" %}
 
 frappe.ui.form.on('FinTS Login', {
 	onload: function(frm) {
-		erpnextfints.interactive.progressbar(frm);
+		kefiya.interactive.progressbar(frm);
 		if(frm.doc.account_iban){
 			frm.toggle_display("transaction_settings_section",true);
 		}else{
@@ -66,7 +66,7 @@ frappe.ui.form.on('FinTS Login', {
 	},
 	call_get_login_accounts: function(frm){
 		frappe.call({
-			method:"erpnextfints.utils.client.get_accounts",
+			method:"kefiya.utils.client.get_accounts",
 			args: {
 				'fints_login': frm.doc.name,
 				'user_scope': frm.doc.name

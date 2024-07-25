@@ -1,11 +1,11 @@
 // Copyright (c) 2019, jHetzer and contributors
 // For license information, please see license.txt
 
-{% include "erpnextfints/public/js/controllers/fints_interactive.js" %}
+{% include "kefiya/public/js/controllers/fints_interactive.js" %}
 
 frappe.ui.form.on('FinTS Import', {
 	onload: function(frm) {
-		erpnextfints.interactive.progressbar(frm);
+		kefiya.interactive.progressbar(frm);
 		if(frm.doc.docstatus == 1){
 			frm.toggle_display("import_transaction",false);
 			frm.toggle_display("import_details_section",true);
@@ -75,7 +75,7 @@ frappe.ui.form.on('FinTS Import', {
 	call_import_transaction: function(frm){
 		// frappe.show_progress(frm.docname,1,100,"Connect via FinTS")
 		frappe.call({
-			method:"erpnextfints.utils.client.import_fints_transactions",
+			method:"kefiya.utils.client.import_fints_transactions",
 			args: {
 				'fints_import': frm.docname,
 				'fints_login': frm.doc.fints_login,

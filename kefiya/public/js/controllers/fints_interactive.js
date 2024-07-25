@@ -1,9 +1,9 @@
 // Copyright (c) 2019, jHetzer and contributors
 // For license information, please see license.txt
 
-frappe.provide("erpnextfints.interactive");
+frappe.provide("kefiya.interactive");
 
-erpnextfints.interactive = {
+kefiya.interactive = {
 	progressbar: function(frm) {
 		frappe.realtime.on("fints_progressbar", function(data) {
 			if(data.docname === frm.doc.name) {
