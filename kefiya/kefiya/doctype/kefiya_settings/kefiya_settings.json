@@ -34,9 +34,9 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-07-12 14:03:38.030822",
+ "modified": "2024-07-12 14:05:38.030822",
  "modified_by": "Administrator",
- "module": "ERPNextFinTS",
+ "module": "Kefiya",
  "name": "Kefiya Settings",
  "owner": "Administrator",
  "permissions": [
