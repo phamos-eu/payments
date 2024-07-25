@@ -228,7 +228,7 @@ kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 	}
 
 	set_breadcrumbs() {
-		frappe.breadcrumbs.add("ERPNextFinTS");
+		frappe.breadcrumbs.add("Kefiya");
 	}
 
 	make_standard_filters() {

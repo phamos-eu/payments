@@ -121,7 +121,7 @@ kefiya.tools.bankWizardTool = class BankWizardTool extends frappe.views.BaseList
 	}
 
 	set_breadcrumbs() {
-		frappe.breadcrumbs.add("ERPNextFinTS");
+		frappe.breadcrumbs.add("Kefiya");
 	}
 
 	make_standard_filters() {
