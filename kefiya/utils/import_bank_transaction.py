@@ -5,7 +5,7 @@ import hashlib
 import frappe
 from frappe import _
 
-from erpnextfints.erpnextfints.doctype.kefiya_bank_statement_import.kefiya_bank_statement_import import get_bank_account_data
+from kefiya.kefiya.doctype.kefiya_bank_statement_import.kefiya_bank_statement_import import get_bank_account_data
 
 class ImportBankTransaction:
     def __init__(self, fints_login, interactive, allow_error=False):

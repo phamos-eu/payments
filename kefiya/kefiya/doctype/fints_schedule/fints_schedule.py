@@ -10,10 +10,10 @@ from dateutil.relativedelta import relativedelta
 from frappe.utils import now_datetime
 from frappe.utils.scheduler import is_scheduler_inactive
 from frappe import _
-from erpnextfints.utils.client import import_fints_transactions
-from erpnextfints.utils.fints_controller import FinTSController
-# import erpnextfints.erpnextfints.doctype.fints_import.fints_import as fin_imp
-# from erpnextfints.utils.fints_wrapper import FinTSConnection
+from kefiya.utils.client import import_fints_transactions
+from kefiya.utils.fints_controller import FinTSController
+# import kefiya.kefiya.doctype.fints_import.fints_import as fin_imp
+# from kefiya.utils.fints_wrapper import FinTSConnection
 
 
 class FinTSSchedule(Document):

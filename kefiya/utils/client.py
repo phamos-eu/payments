@@ -19,7 +19,7 @@ def import_fints_transactions(fints_import, fints_login, user_scope):
     :type user_scopet: str
     :return: List of max 10 transactions and all new payment entries
     """
-    from erpnextfints.utils.fints_controller import FinTSController
+    from kefiya.utils.fints_controller import FinTSController
     interactive = {"docname": user_scope, "enabled": True}
 
     return FinTSController(fints_login, interactive) \
@@ -36,7 +36,7 @@ def get_accounts(fints_login, user_scope):
     :type user_scopet: str
     :return: FinTS accounts json formated
     """
-    from erpnextfints.utils.fints_controller import FinTSController
+    from kefiya.utils.fints_controller import FinTSController
     interactive = {"docname": user_scope, "enabled": True}
 
     return {
@@ -57,7 +57,7 @@ def new_bank_account(payment_doc, bankData):
     :type bankData: str
     :return: Dict with status and bank details
     """
-    from erpnextfints.utils.bank_account_controller import \
+    from kefiya.utils.bank_account_controller import \
         BankAccountController
     return BankAccountController().new_bank_account(payment_doc, bankData)
 
@@ -69,7 +69,7 @@ def get_missing_bank_accounts():
     Query payment entries for missing bank accounts.
     :return: List of payment entry data
     """
-    from erpnextfints.utils.bank_account_controller import \
+    from kefiya.utils.bank_account_controller import \
         BankAccountController
     return BankAccountController().get_missing_bank_accounts()
 
@@ -83,7 +83,7 @@ def has_page_permission(page_name):
     :type page_doc: page doctyp
     :return: Boolean
     """
-    from erpnextfints.utils.bank_account_controller import \
+    from kefiya.utils.bank_account_controller import \
         has_page_permission
     return has_page_permission(page_name)
 
@@ -99,7 +99,7 @@ def add_payment_reference(payment_entry, sales_invoice):
     :type sales_invoice: str
     :return: Payment reference name
     """
-    from erpnextfints.utils.assign_payment_controller import \
+    from kefiya.utils.assign_payment_controller import \
         AssignmentController
 
     return AssignmentController().add_payment_reference(
@@ -119,7 +119,7 @@ def auto_assign_payments():
 
     :return: List of assigned payments
     """
-    from erpnextfints.utils.assign_payment_controller import \
+    from kefiya.utils.assign_payment_controller import \
         AssignmentController
 
     return AssignmentController().auto_assign_payments()
