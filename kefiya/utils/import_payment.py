@@ -68,7 +68,7 @@ class ImportPaymentEntry:
             if status not in ['c', 'd']:
                 frappe.log_error(
                     _('Payment type not handled'),
-                    'FinTS Import Error'
+                    'Kefiya Import Error'
                 )
                 continue
 

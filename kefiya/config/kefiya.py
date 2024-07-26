@@ -12,9 +12,9 @@ def get_data():  # noqa: D103
         "icon": "octicon octicon-git-compare",
         "items": [{
             "type": "doctype",
-            "name": "FinTS Import",
-            "label": _("FinTS Import"),
-            "description": _("FinTS Import")
+            "name": "Kefiya Import",
+            "label": _("Kefiya Import"),
+            "description": _("Kefiya Import")
         }, {
             "type": "doctype",
             "name": "Kefiya Login",

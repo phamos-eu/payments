@@ -41,7 +41,7 @@ def scheduled_import_fints_payments(manual=None):
         try:
             if child_item.active and (child_item.import_frequency or manual):
                 lastruns = frappe.get_list(
-                    'FinTS Import',
+                    'Kefiya Import',
                     filters={
                         'fints_login': child_item.fints_login,
                         'docstatus': 1,
@@ -50,9 +50,9 @@ def scheduled_import_fints_payments(manual=None):
                     fields=['name', 'end_date', 'modified'],
                     order_by='end_date desc, modified desc'
                 )[:1] or [None]
-                # Create new 'FinTS Import' doc
+                # Create new 'Kefiya Import' doc
                 fints_import = frappe.get_doc({
-                    'doctype': 'FinTS Import',
+                    'doctype': 'Kefiya Import',
                     'fints_login': child_item.fints_login
                 })
                 if lastruns[0] is not None:

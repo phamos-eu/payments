@@ -103,7 +103,7 @@ class FinTSController:
 
     @staticmethod
     def get_fints_import_file_content(fints_import):
-        """Get FinTS Import json file content as json.
+        """Get Kefiya Import json file content as json.
 
         :param fints_import: fints_import doc
         :type fints_import: fints_import doc
@@ -209,7 +209,7 @@ class FinTSController:
             self.interactive.show_progress_realtime(
                 _("Start transaction import"), 40, reload=False
             )
-            curr_doc = frappe.get_doc("FinTS Import", fints_import)
+            curr_doc = frappe.get_doc("Kefiya Import", fints_import)
             new_bank_transactions = None
             tansactions = self.get_fints_transactions(
                 curr_doc.from_date,
@@ -225,7 +225,7 @@ class FinTSController:
                         json.dumps(
                             tansactions, ensure_ascii=False
                         ).replace(",", ",\n").encode('utf8'),
-                        'FinTS Import',
+                        'Kefiya Import',
                         fints_import,
                         folder='Home/Attachments/FinTS',
                         decode=False,

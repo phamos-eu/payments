@@ -35,8 +35,8 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "FinTS Import",
-   "link_to": "FinTS Import",
+   "label": "Kefiya Import",
+   "link_to": "Kefiya Import",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
