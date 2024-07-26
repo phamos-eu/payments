@@ -3,7 +3,7 @@
 
 {% include "kefiya/public/js/controllers/fints_interactive.js" %}
 
-frappe.ui.form.on('FinTS Login', {
+frappe.ui.form.on('Kefiya Login', {
 	onload: function(frm) {
 		kefiya.interactive.progressbar(frm);
 		if(frm.doc.account_iban){

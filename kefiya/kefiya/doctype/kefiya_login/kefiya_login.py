@@ -7,5 +7,5 @@ from __future__ import unicode_literals
 from frappe.model.document import Document
 
 
-class FinTSLogin(Document):
+class KefiyaLogin(Document):
     pass

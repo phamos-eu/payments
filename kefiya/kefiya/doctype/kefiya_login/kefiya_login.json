@@ -178,10 +178,10 @@
  ],
  "icon": "fa fa-university",
  "links": [],
- "modified": "2023-07-25 09:54:48.833536",
+ "modified": "2024-07-25 09:54:48.833536",
  "modified_by": "Administrator",
  "module": "Kefiya",
- "name": "FinTS Login",
+ "name": "Kefiya Login",
  "owner": "Administrator",
  "permissions": [
   {

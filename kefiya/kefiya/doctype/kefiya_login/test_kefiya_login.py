@@ -7,5 +7,5 @@ import frappe  # noqa: F401 # pylint: disable=unused-import
 import unittest
 
 
-class TestFinTSLogin(unittest.TestCase):
+class TestKefiyaLogin(unittest.TestCase):
     pass
