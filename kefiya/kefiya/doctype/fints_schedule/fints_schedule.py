@@ -12,7 +12,7 @@ from frappe.utils.scheduler import is_scheduler_inactive
 from frappe import _
 from kefiya.utils.client import import_fints_transactions
 from kefiya.utils.fints_controller import FinTSController
-# import kefiya.kefiya.doctype.fints_import.fints_import as fin_imp
+# import kefiya.kefiya.doctype.kefiya_import.kefiya_import as fin_imp
 # from kefiya.utils.fints_wrapper import FinTSConnection
 
 
@@ -51,7 +51,7 @@ def scheduled_import_fints_payments(manual=None):
                     order_by='end_date desc, modified desc'
                 )[:1] or [None]
                 # Create new 'Kefiya Import' doc
-                fints_import = frappe.get_doc({
+                kefiya_import = frappe.get_doc({
                     'doctype': 'Kefiya Import',
                     'fints_login': child_item.fints_login
                 })
@@ -79,7 +79,7 @@ def scheduled_import_fints_payments(manual=None):
                             lastruns[0].end_date < checkdate or manual
                         )
                     ):
-                        fints_import.from_date = new_from_date
+                        kefiya_import.from_date = new_from_date
                         # overlap = child_item.overlap
                         # if overlap < 0:
                         #    overlap = 0
@@ -88,23 +88,23 @@ def scheduled_import_fints_payments(manual=None):
                         print("skip")
                         continue
 
-                    # fints_import.from_date = lastruns[0].end_date - relativedelta(days=overlap) # noqa: E501
+                    # kefiya_import.from_date = lastruns[0].end_date - relativedelta(days=overlap) # noqa: E501
                 # else: load all available transactions of the past
                 # always import transactions from yesterday
-                fints_import.to_date = \
+                kefiya_import.to_date = \
                     now_datetime().date() - relativedelta(days=1)
 
-                fints_import.save()
+                kefiya_import.save()
                 if manual:
                     import_fints_transactions(
-                        fints_import.name,
+                        kefiya_import.name,
                         child_item.fints_login,
                         schedule_settings.name
                     )
                 else:
                     FinTSController(child_item.fints_login) \
-                        .import_fints_transactions(fints_import.name)
-                # fin_imp.import_transactions(fints_import.name, child_item.fints_login) # noqa: E501
+                        .import_fints_transactions(kefiya_import.name)
+                # fin_imp.import_transactions(kefiya_import.name, child_item.fints_login) # noqa: E501
 
                 print(frappe.as_json(child_item))
         except Exception:

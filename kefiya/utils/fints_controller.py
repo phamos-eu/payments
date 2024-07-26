@@ -102,17 +102,17 @@ class FinTSController:
         return account
 
     @staticmethod
-    def get_fints_import_file_content(fints_import):
+    def get_kefiya_import_file_content(kefiya_import):
         """Get Kefiya Import json file content as json.
 
-        :param fints_import: fints_import doc
-        :type fints_import: fints_import doc
+        :param kefiya_import: kefiya_import doc
+        :type kefiya_import: kefiya_import doc
         :return: Transaction from file as json object list
         """
-        if fints_import.file_url:
-            content = get_file(fints_import.file_url)[1]
+        if kefiya_import.file_url:
+            content = get_file(kefiya_import.file_url)[1]
             # Check content hash for file manipulations
-            if fints_import.file_hash == get_content_hash(content):
+            if kefiya_import.file_hash == get_content_hash(content):
                 return json.loads(
                     content,
                     strict=False
@@ -198,18 +198,18 @@ class FinTSController:
                 )
             )
 
-    def import_fints_transactions(self, fints_import):
+    def import_fints_transactions(self, kefiya_import):
         """Create payment entries by FinTS transactions.
 
-        :param fints_import: fints_import doc name
-        :type fints_import: str
+        :param kefiya_import: kefiya_import doc name
+        :type kefiya_import: str
         :return: List of max 10 transactions and all new payment entries
         """
         try:
             self.interactive.show_progress_realtime(
                 _("Start transaction import"), 40, reload=False
             )
-            curr_doc = frappe.get_doc("Kefiya Import", fints_import)
+            curr_doc = frappe.get_doc("Kefiya Import", kefiya_import)
             new_bank_transactions = None
             tansactions = self.get_fints_transactions(
                 curr_doc.from_date,
@@ -221,12 +221,12 @@ class FinTSController:
             else:
                 try:
                     save_file(
-                        fints_import + ".json",
+                        kefiya_import + ".json",
                         json.dumps(
                             tansactions, ensure_ascii=False
                         ).replace(",", ",\n").encode('utf8'),
                         'Kefiya Import',
-                        fints_import,
+                        kefiya_import,
                         folder='Home/Attachments/FinTS',
                         decode=False,
                         is_private=1,
@@ -239,7 +239,7 @@ class FinTSController:
                 curr_doc.end_date = tansactions[-1]["date"]
 
                 importer = ImportBankTransaction(self.fints_login, self.interactive)
-                importer.fints_import(tansactions)
+                importer.kefiya_import(tansactions)
 
                 if len(importer.bank_transactions) == 0:
                     frappe.msgprint(_("No new payments found"))

@@ -16,7 +16,7 @@ class ImportBankTransaction:
         self.default_supplier = fints_login.default_supplier
         self.interactive = interactive
 
-    def fints_import(self, fints_transaction):
+    def kefiya_import(self, fints_transaction):
         # F841 total_items = len(fints_transaction)
         self.interactive.progress = 0
         total_transactions = len(fints_transaction)

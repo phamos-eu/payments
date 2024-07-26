@@ -52,7 +52,7 @@ class ImportPaymentEntry:
 
         return {'is_default': is_default, 'party': party}
 
-    def fints_import(self, fints_transaction):
+    def kefiya_import(self, fints_transaction):
         # F841 total_items = len(fints_transaction)
         self.interactive.progress = 0
         total_transactions = len(fints_transaction)
