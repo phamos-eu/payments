@@ -133,7 +133,7 @@ doc_events = {
 # }
 scheduler_events = {
     "daily_long": [
-        "kefiya.kefiya.doctype.fints_schedule.fints_schedule.scheduled_import_fints_payments"  # noqa: E501
+        "kefiya.kefiya.doctype.kefiya_schedule.kefiya_schedule.scheduled_import_fints_payments"  # noqa: E501
     ]
 }
 
