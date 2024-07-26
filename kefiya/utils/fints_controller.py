@@ -24,7 +24,7 @@ from .assign_payment_controller import AssignmentController
 
 class FinTSController:
     def __init__(self, fints_login_docname, interactive=False):
-        self.fints_login = frappe.get_doc("FinTS Login", fints_login_docname)
+        self.fints_login = frappe.get_doc("Kefiya Login", fints_login_docname)
         self.name = self.fints_login.name
         self.interactive = FinTSInteractive(interactive)
         self.__init_fints_connection()

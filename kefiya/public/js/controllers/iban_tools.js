@@ -112,7 +112,7 @@ kefiya.iban_tools = {
 				frappe.call({
 					method: "frappe.client.get_list",
 					args: {
-						doctype: "FinTS Login",
+						doctype: "Kefiya Login",
 						fields: ["default_customer", "default_supplier"],
 					},
 					// quiet: false,

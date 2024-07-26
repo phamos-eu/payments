@@ -17,9 +17,9 @@ def get_data():  # noqa: D103
             "description": _("FinTS Import")
         }, {
             "type": "doctype",
-            "name": "FinTS Login",
-            "label": _("FinTS Login"),
-            "description": _("FinTS Login")
+            "name": "Kefiya Login",
+            "label": _("Kefiya Login"),
+            "description": _("Kefiya Login")
         }, {
             "type": "doctype",
             "name": "FinTS Schedule",

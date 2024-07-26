@@ -26,8 +26,8 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "FinTS Login",
-   "link_to": "FinTS Login",
+   "label": "Kefiya Login",
+   "link_to": "Kefiya Login",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"

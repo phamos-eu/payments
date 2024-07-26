@@ -38,9 +38,9 @@ class BankAccountController:
                     'User {0} does not have access to this method'
                 ).format(frappe.bold(frappe.session.user)))
 
-            # Check for FinTS Login default parties
+            # Check for Kefiya Login default parties
             if frappe.get_all(
-                'FinTS Login',
+                'Kefiya Login',
                 or_filters=[
                     ['default_customer', '=', payment_doc.get('party')],
                     ['default_supplier', '=', payment_doc.get('party')]

@@ -68,7 +68,7 @@ frappe.ui.form.on('Kefiya Login', {
 		frappe.call({
 			method:"kefiya.utils.client.get_accounts",
 			args: {
-				'fints_login': frm.doc.name,
+				'kefiya_login': frm.doc.name,
 				'user_scope': frm.doc.name
 			},
 			callback: function(r) {
