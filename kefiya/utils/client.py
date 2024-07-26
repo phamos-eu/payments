@@ -8,31 +8,31 @@ from frappe.utils import getdate
 from frappe.utils import today
 
 @frappe.whitelist()
-def import_fints_transactions(fints_import, fints_login, user_scope):
+def import_fints_transactions(kefiya_import, kefiya_login, user_scope):
     """Create payment entries by FinTS transactions.
 
-    :param fints_import: fints_import doc name
-    :param fints_login: fints_login doc name
+    :param kefiya_import: kefiya_import doc name
+    :param kefiya_login: kefiya_login doc name
     :param user_scope: Current open doctype page
-    :type fints_import: str
-    :type fints_login: str
+    :type kefiya_import: str
+    :type kefiya_login: str
     :type user_scopet: str
     :return: List of max 10 transactions and all new payment entries
     """
     from kefiya.utils.fints_controller import FinTSController
     interactive = {"docname": user_scope, "enabled": True}
 
-    return FinTSController(fints_login, interactive) \
-        .import_fints_transactions(fints_import)
+    return FinTSController(kefiya_login, interactive) \
+        .import_fints_transactions(kefiya_import)
 
 
 @frappe.whitelist()
-def get_accounts(fints_login, user_scope):
+def get_accounts(kefiya_login, user_scope):
     """Create payment entries by FinTS transactions.
 
-    :param fints_login: fints_login doc name
+    :param kefiya_login: kefiya_login doc name
     :param user_scope: Current open doctype page
-    :type fints_login: str
+    :type kefiya_login: str
     :type user_scopet: str
     :return: FinTS accounts json formated
     """
@@ -41,7 +41,7 @@ def get_accounts(fints_login, user_scope):
 
     return {
         "accounts": FinTSController(
-            fints_login,
+            kefiya_login,
             interactive).get_fints_accounts()
     }
 
