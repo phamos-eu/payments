@@ -22,9 +22,9 @@ def get_data():  # noqa: D103
             "description": _("Kefiya Login")
         }, {
             "type": "doctype",
-            "name": "FinTS Schedule",
-            "label": _("FinTS Schedule"),
-            "description": _("FinTS Schedule")
+            "name": "Kefiya Schedule",
+            "label": _("Kefiya Schedule"),
+            "description": _("Kefiya Schedule")
         }]
     }, {
         "label": _("Tools"),
