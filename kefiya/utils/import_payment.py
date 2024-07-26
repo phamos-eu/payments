@@ -7,12 +7,12 @@ from frappe import _
 
 
 class ImportPaymentEntry:
-    def __init__(self, fints_login, interactive, allow_error=False):
+    def __init__(self, kefiya_login, interactive, allow_error=False):
         self.allow_error = allow_error
         self.payment_entries = []
-        self.fints_login = fints_login
-        self.default_customer = fints_login.default_customer
-        self.default_supplier = fints_login.default_supplier
+        self.kefiya_login = kefiya_login
+        self.default_customer = kefiya_login.default_customer
+        self.default_supplier = kefiya_login.default_supplier
         self.interactive = interactive
 
     def get_party_by_value(self, sender, party_type, iban=None):
@@ -72,10 +72,10 @@ class ImportPaymentEntry:
                 )
                 continue
 
-            if status == 'c' and not self.fints_login.enable_received:
+            if status == 'c' and not self.kefiya_login.enable_received:
                 continue
 
-            if status == 'd' and not self.fints_login.enable_pay:
+            if status == 'd' and not self.kefiya_login.enable_pay:
                 continue
 
             txn_number = idx + 1
@@ -119,12 +119,12 @@ class ImportPaymentEntry:
             if status == 'c':
                 payment_type = 'Receive'
                 party_type = 'Customer'
-                paid_to = self.fints_login.erpnext_account  # noqa: E501
+                paid_to = self.kefiya_login.erpnext_account  # noqa: E501
                 remarkType = 'Sender'
             elif status == 'd':
                 payment_type = 'Pay'
                 party_type = 'Supplier'
-                paid_from = self.fints_login.erpnext_account  # noqa: E501
+                paid_from = self.kefiya_login.erpnext_account  # noqa: E501
                 remarkType = 'Receiver'
 
             party = self.get_party_by_value(
@@ -142,7 +142,7 @@ class ImportPaymentEntry:
 
             payment_entry = frappe.get_doc({
                 'doctype': 'Payment Entry',
-                'company': self.fints_login.company,
+                'company': self.kefiya_login.company,
                 'paid_amount': amount,
                 'received_amount': amount,
                 'allocate_payment_amount': 0,

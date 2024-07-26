@@ -43,7 +43,7 @@ def scheduled_import_fints_payments(manual=None):
                 lastruns = frappe.get_list(
                     'Kefiya Import',
                     filters={
-                        'fints_login': child_item.fints_login,
+                        'kefiya_login': child_item.kefiya_login,
                         'docstatus': 1,
                         'end_date': ('>', '1/1/1900')
                     },
@@ -53,7 +53,7 @@ def scheduled_import_fints_payments(manual=None):
                 # Create new 'Kefiya Import' doc
                 kefiya_import = frappe.get_doc({
                     'doctype': 'Kefiya Import',
-                    'fints_login': child_item.fints_login
+                    'kefiya_login': child_item.kefiya_login
                 })
                 if lastruns[0] is not None:
                     if child_item.import_frequency == 'Daily':
@@ -98,13 +98,13 @@ def scheduled_import_fints_payments(manual=None):
                 if manual:
                     import_fints_transactions(
                         kefiya_import.name,
-                        child_item.fints_login,
+                        child_item.kefiya_login,
                         schedule_settings.name
                     )
                 else:
-                    FinTSController(child_item.fints_login) \
+                    FinTSController(child_item.kefiya_login) \
                         .import_fints_transactions(kefiya_import.name)
-                # fin_imp.import_transactions(kefiya_import.name, child_item.fints_login) # noqa: E501
+                # fin_imp.import_transactions(kefiya_import.name, child_item.kefiya_login) # noqa: E501
 
                 print(frappe.as_json(child_item))
         except Exception:

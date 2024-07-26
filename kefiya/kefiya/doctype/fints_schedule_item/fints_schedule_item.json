@@ -21,7 +21,7 @@
    "collapsible": 0,
    "columns": 0,
    "fetch_if_empty": 0,
-   "fieldname": "fints_login",
+   "fieldname": "kefiya_login",
    "fieldtype": "Link",
    "hidden": 0,
    "ignore_user_permissions": 0,

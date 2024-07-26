@@ -23,9 +23,9 @@ from .assign_payment_controller import AssignmentController
 
 
 class FinTSController:
-    def __init__(self, fints_login_docname, interactive=False):
-        self.fints_login = frappe.get_doc("Kefiya Login", fints_login_docname)
-        self.name = self.fints_login.name
+    def __init__(self, kefiya_login_docname, interactive=False):
+        self.kefiya_login = frappe.get_doc("Kefiya Login", kefiya_login_docname)
+        self.name = self.kefiya_login.name
         self.interactive = FinTSInteractive(interactive)
         self.__init_fints_connection()
         self.__init_tan_processing()
@@ -45,11 +45,11 @@ class FinTSController:
 
         try:
             self.fints_connection = FinTS3PinTanClient(
-                self.fints_login.blz,
-                self.fints_login.fints_login,
-                self.fints_login.get_password("fints_password"),
-                self.fints_login.fints_url,
-                product_id=self.fints_login.product_id,
+                self.kefiya_login.blz,
+                self.kefiya_login.fints_login,
+                self.kefiya_login.get_password("fints_password"),
+                self.kefiya_login.fints_url,
+                product_id=self.kefiya_login.product_id,
                 mode=FinTSClientMode.INTERACTIVE,
             )
         except Exception as e:
@@ -186,7 +186,7 @@ class FinTSController:
 
         with self.fints_connection:
             account = self.get_fints_account_by_iban(
-                self.fints_login.account_iban)
+                self.kefiya_login.account_iban)
             return json.loads(
                 json.dumps(
                     self.fints_connection.get_transactions(
@@ -238,7 +238,7 @@ class FinTSController:
                 curr_doc.start_date = tansactions[0]["date"]
                 curr_doc.end_date = tansactions[-1]["date"]
 
-                importer = ImportBankTransaction(self.fints_login, self.interactive)
+                importer = ImportBankTransaction(self.kefiya_login, self.interactive)
                 importer.kefiya_import(tansactions)
 
                 if len(importer.bank_transactions) == 0:

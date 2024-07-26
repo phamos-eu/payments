@@ -8,7 +8,7 @@ import frappe
 
 
 def execute(): # noqa E103
-    frappe.reload_doc("kefiya", "doctype", "fints_login")
+    frappe.reload_doc("kefiya", "doctype", "kefiya_login")
     frappe.db.sql("""
             Update
                 `tabKefiya Login`
