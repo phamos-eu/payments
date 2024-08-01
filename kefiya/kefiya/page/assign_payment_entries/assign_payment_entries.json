@@ -1,0 +1,30 @@
+{
+ "content": null,
+ "creation": "2024-05-23 14:53:17.452379",
+ "docstatus": 0,
+ "doctype": "Page",
+ "icon": "",
+ "idx": 0,
+ "modified": "2024-05-28 14:56:03.912068",
+ "modified_by": "Administrator",
+ "module": "Kefiya",
+ "name": "assign_payment_entries",
+ "owner": "Administrator",
+ "page_name": "assign_payment_entries",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Accounts User"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Assign Payment Entries"
+}

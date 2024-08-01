@@ -4,15 +4,15 @@ include *.json
 include *.md
 include *.py
 include *.txt
-recursive-include erpnextfints *.css
-recursive-include erpnextfints *.csv
-recursive-include erpnextfints *.html
-recursive-include erpnextfints *.ico
-recursive-include erpnextfints *.js
-recursive-include erpnextfints *.json
-recursive-include erpnextfints *.md
-recursive-include erpnextfints *.png
-recursive-include erpnextfints *.py
-recursive-include erpnextfints *.svg
-recursive-include erpnextfints *.txt
-recursive-exclude erpnextfints *.pyc
+recursive-include kefiya *.css
+recursive-include kefiya *.csv
+recursive-include kefiya *.html
+recursive-include kefiya *.ico
+recursive-include kefiya *.js
+recursive-include kefiya *.json
+recursive-include kefiya *.md
+recursive-include kefiya *.png
+recursive-include kefiya *.py
+recursive-include kefiya *.svg
+recursive-include kefiya *.txt
+recursive-exclude kefiya *.pyc
