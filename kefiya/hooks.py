@@ -40,9 +40,9 @@ app_license = "MIT"
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
-doctype_js = {
-    "Payment Entry": "public/js/payment_entry_doctype.js",
-    }
+# doctype_js = {
+#     "Payment Entry": "public/js/payment_entry_doctype.js",
+#     }
 
 # Home Pages
 # ----------
@@ -104,11 +104,11 @@ after_install = "kefiya.utils.install.after_install"
 #         "on_trash": "method"
 #         }
 # }
-doc_events = {
-    "Bank Account": {
-        "validate": "kefiya.utils.bank_account_controller.validate_unique_iban"  # noqa: E501
-    }
-}
+# doc_events = {
+#     "Bank Account": {
+#         "validate": "kefiya.utils.bank_account_controller.validate_unique_iban"  # noqa: E501
+#     }
+# }
 
 
 # Scheduled Tasks
