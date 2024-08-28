@@ -21,6 +21,8 @@
   "erpnext_account_settings_section",
   "company",
   "erpnext_account",
+  "column_break_jlnnd",
+  "bank_account",
   "received_invoice_section",
   "default_customer",
   "column_break_16",
@@ -111,9 +113,10 @@
    "reqd": 1
   },
   {
+   "description": "This field will hold the value that will be set in the Payment Entry record on paid_from or paid_to field depending on the transaction type during import.",
    "fieldname": "erpnext_account",
    "fieldtype": "Link",
-   "label": "Bank Account",
+   "label": "Account",
    "options": "Account",
    "reqd": 1
   },
@@ -174,14 +177,27 @@
    "fieldname": "product_id",
    "fieldtype": "Data",
    "label": "Product Id"
+  },
+  {
+   "fieldname": "column_break_jlnnd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "This field will hold the value that will be set in the Bank Transaction record on bank account field during import.",
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "Bank Account",
+   "options": "Bank Account",
+   "reqd": 1
   }
  ],
  "icon": "fa fa-university",
  "links": [],
- "modified": "2024-07-25 09:54:48.833536",
+ "modified": "2024-08-28 10:42:20.389364",
  "modified_by": "Administrator",
  "module": "Kefiya",
  "name": "Kefiya Login",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
@@ -206,5 +222,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "ASC",
+ "states": [],
  "track_changes": 1
 }

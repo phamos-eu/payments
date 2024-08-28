@@ -5,8 +5,6 @@ import hashlib
 import frappe
 from frappe import _
 
-from kefiya.kefiya.doctype.kefiya_bank_statement_import.kefiya_bank_statement_import import get_bank_account_data
-
 class ImportBankTransaction:
     def __init__(self, kefiya_login, interactive, allow_error=False):
         self.allow_error = allow_error
@@ -96,20 +94,13 @@ class ImportBankTransaction:
                     deposit = 0
                     withdrawal = amount
 
-                party, party_type = get_bank_account_data(applicant_iban)
-
-                default_bank_account = None
-                if party and party_type and frappe.db.exists(party_type, party):
-                    default_bank_account = frappe.db.get_value(party_type, party, "default_bank_account")
-                bank_party_account_number = ""
-                if default_bank_account:
-                    bank_party_account_number = frappe.db.get_value("Bank Account", default_bank_account, "bank_account_no")
+                party, party_type, iban, bank_account_no = self.get_bank_account_data(self.kefiya_login.bank_account)              
 
                 bank_transaction = frappe.get_doc({
                     'doctype': 'Bank Transaction',
                     'date': date,
                     'status': 'Unreconciled',
-                    'bank_account': self.kefiya_login.erpnext_account,
+                    'bank_account': self.kefiya_login.bank_account,
                     'company': self.kefiya_login.company,
                     'deposit': deposit,
                     'withdrawal': withdrawal,
@@ -119,9 +110,8 @@ class ImportBankTransaction:
                     'unallocated_amount': amount,
                     'party_type': party_type,
                     'party': party,
-                    'bank_party_name': default_bank_account,
-                    'bank_party_account_number': bank_party_account_number,
-                    'bank_party_iban': t['applicant_iban'],
+                    'bank_party_account_number': bank_account_no,
+                    'bank_party_iban': iban,
                     'docstatus': 1
                 })
                 bank_transaction.insert()
@@ -129,3 +119,15 @@ class ImportBankTransaction:
             except Exception as e:
                 frappe.log_error("Error importing bank transaction", "{}\n\n{}".format(t, frappe.get_traceback()))
                 frappe.msgprint("There were some transactions with error. Please, have a look on Error Log.")
+
+
+    def get_bank_account_data(bank_account):
+        party, party_type = '', ''
+       
+        bank_account_doc = frappe.get_doc('Bank Account', {'name': bank_account})
+        party = bank_account_doc.party
+        party_type = bank_account_doc.party_type
+        iban = bank_account_doc.iban
+        bank_account_no = bank_account_doc.bank_account_no
+
+        return [party, party_type, iban, bank_account_no]
