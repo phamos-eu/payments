@@ -121,7 +121,7 @@ class ImportBankTransaction:
                 frappe.msgprint("There were some transactions with error. Please, have a look on Error Log.")
 
 
-    def get_bank_account_data(bank_account):
+    def get_bank_account_data(self, bank_account):
         party, party_type = '', ''
        
         bank_account_doc = frappe.get_doc('Bank Account', {'name': bank_account})
