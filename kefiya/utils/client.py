@@ -171,7 +171,9 @@ def create_payment_entry(bank_transaction_name, invoice_name, match_against):
         reference.allocated_amount = paid_amount
 
     payment_entry.insert()
-    payment_entry.submit()
+    kefiya_settings = frappe.get_single("Kefiya Settings")
+    if kefiya_settings.submit_payment_entry:
+        payment_entry.submit()
 
     return paid_amount, payment_entry.name
 

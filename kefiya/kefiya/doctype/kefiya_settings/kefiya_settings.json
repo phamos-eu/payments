@@ -7,7 +7,8 @@
  "field_order": [
   "assign_against",
   "show_entries_in_payment_assignment_wizard",
-  "mode_of_payment"
+  "mode_of_payment",
+  "submit_payment_entry"
  ],
  "fields": [
   {
@@ -29,12 +30,18 @@
    "hidden": 1,
    "label": "Match Against",
    "options": "Sales Invoice\nPurchase Invoice\nJournal Entry"
+  },
+  {
+   "default": "0",
+   "fieldname": "submit_payment_entry",
+   "fieldtype": "Check",
+   "label": "Submit Payment Entry"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-07-12 14:05:38.030822",
+ "modified": "2024-08-28 13:49:13.835163",
  "modified_by": "Administrator",
  "module": "Kefiya",
  "name": "Kefiya Settings",
