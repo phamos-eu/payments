@@ -21,6 +21,11 @@ def delete_custom_fields(custom_fields):
 
 def get_custom_fields():
 	custom_fields_payment_request = [
+		{
+			"label": "Kefiya Section",
+			"fieldname": "kefiya_section",
+			"fieldtype": "Section Break",
+		},
         {
             "fieldname": "company",
             "fieldtype": "Link",
@@ -28,15 +33,25 @@ def get_custom_fields():
             "options": "Company",
             "print_hide": 1,
             "remember_last_selected_value": 1,
-            "insert_after": "mode_of_payment",
+            "insert_after": "kefiya_section",
         },
+		{
+			"fieldname": "kefiya_column_break",
+			"fieldtype": "Column Break",
+			"insert_after": "company",
+		},
 		{
 			"label": "Party Bank Account",
 			"fieldname": "party_bank_account",
 			"fieldtype": "Link",
             "options": "Bank Account",
             "depends_on": "party",
-			"insert_after": "bank_account",
+			"insert_after": "kefiya_column_break",
+		},
+		{
+			"fieldname": "kefiya_last_section",
+			"fieldtype": "Section Break",
+			"insert_after": "party_bank_account"
 		}
 	]
 
