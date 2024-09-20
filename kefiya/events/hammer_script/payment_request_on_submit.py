@@ -3,7 +3,6 @@ from frappe.utils import flt
 from datetime import datetime
 
 def export_request(doc,method):
-    print('here******************')
     filename = "/tmp/payment_request_on_submit.log"
     
     with open(filename, "a") as f:
