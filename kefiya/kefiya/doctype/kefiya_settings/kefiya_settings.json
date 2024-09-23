@@ -5,10 +5,15 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "bank_account",
   "assign_against",
   "show_entries_in_payment_assignment_wizard",
+  "submit_payment_entry",
+  "column_break_gv35w",
   "mode_of_payment",
-  "submit_payment_entry"
+  "column_break_qzdrd",
+  "payment_request_csv_action",
+  "recipient_email"
  ],
  "fields": [
   {
@@ -36,12 +41,42 @@
    "fieldname": "submit_payment_entry",
    "fieldtype": "Check",
    "label": "Submit Payment Entry"
+  },
+  {
+   "fieldname": "column_break_qzdrd",
+   "fieldtype": "Section Break",
+   "label": "Payment Request Export"
+  },
+  {
+   "fieldname": "payment_request_csv_action",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Payment Request CSV Action",
+   "options": "Download CSV\nSend CSV via Email",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.payment_request_csv_action == 'Send CSV via Email';",
+   "fieldname": "recipient_email",
+   "fieldtype": "Data",
+   "label": "Recipient Email",
+   "mandatory_depends_on": "eval:doc.payment_request_csv_action == 'Send CSV via Email';",
+   "options": "Email"
+  },
+  {
+   "fieldname": "column_break_gv35w",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Section Break",
+   "label": "Bank Transaction Wizard"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-08-28 13:49:13.835163",
+ "modified": "2024-09-23 17:49:10.999958",
  "modified_by": "Administrator",
  "module": "Kefiya",
  "name": "Kefiya Settings",

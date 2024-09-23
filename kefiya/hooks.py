@@ -39,12 +39,6 @@ app_license = "MIT"
 doctype_js = {
 	"Payment Request": "public/js/payment_request.js"
 }
-
-doc_events = {
-    "Payment Request": {
-        "on_submit": "kefiya.events.hammer_script.payment_request_on_submit.export_request",
-	},
-}
 # doctype_js = {"doctype" : "public/js/doctype.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
