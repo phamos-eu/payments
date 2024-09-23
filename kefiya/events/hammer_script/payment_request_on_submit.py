@@ -81,7 +81,7 @@ def export_request(payment_request_name):
 @frappe.whitelist()
 def send_csv_via_email(recipient_email, csv_content):
     try:
-        subject = _("Your CSV File")
+        subject = _("Moneyplex CSV File")
         message = _("Please find the attached CSV file.")
         
         attachments = [{
