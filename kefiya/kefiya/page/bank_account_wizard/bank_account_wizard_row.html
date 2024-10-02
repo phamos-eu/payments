@@ -8,41 +8,23 @@
 		</div>
 		<div class="col-sm-2">
 			<div class="clickable-section" data-name={{ name }}>
-				<div class="ellipsis hidden-xs">{{ party_type }}</div>
+				<div class="ellipsis hidden-xs">{{ date }}</div>
 			</div>
 		</div>
 		<div class="col-sm-2">
 			<div class="clickable-section" data-name={{ name }}>
-				<div class="ellipsis">{{ party }}</div>
+				<div class="ellipsis">{{ deposit }} / {{withdrawal}}</div>
 			</div>
 		</div>
-		<div class="col-sm-2">
-			<div class="clickable-section" data-name={{ name }}>
-				<div class="ellipsis">{{ bank_party_name }}</div>
-			</div>
+		<div class="col-sm-2 ellipsis hidden-xs" style="white-space: normal">
+			{{ description }}
 		</div>
-		<!-- <div class="col-sm-2 hidden-xs">
-			<div class="clickable-section" data-name={{ name }}>
-				<div class="ellipsis">{{ bic }}</div>
-			</div>
-		</div> -->
 		<div class="col-sm-3 hidden-xs">
 			<div class="clickable-section" data-name={{ name }}>
 				<div class="ellipsis">{{ bank_party_iban }}</div>
 			</div>
 		</div>
 		<div class="col-sm-1">
-			<!--<div class="btn-group">
-				<a class="dropdown-toggle btn btn-default btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					<span>Actions </span>
-					<span class="caret"></span>
-				</a>
-				<ul class="dropdown-menu reports-dropdown" style="max-height: 300px; overflow-y: auto; right: 0px; left: auto;">
-					<!--<li class="divider"></li>- ->
-					<li><a class="new-bank-account" data-name={{ name }}>{{ __("New Bank Account") }}</a></li>
-					<!--<li><a class="new-invoice" data-name={{ name }}>{{ __("New Invoice") }}</a></li>- ->
-				</ul>
-			</div>-->
 			<button class="new-bank-account btn btn-default btn-xs center-block" data-name={{ name }} style="max-height: 300px; overflow-y: auto; right: 0px; left: auto;">{{ __("Create") }}</button>
 		</div>
 	</div>

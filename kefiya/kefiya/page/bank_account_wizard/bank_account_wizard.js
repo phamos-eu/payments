@@ -23,16 +23,6 @@ kefiya.tools.bankWizard = class BankWizard {
 
 	make() {
 		const me = this;
-
-		// me.$main_section = $(
-		// 	`<div class="reconciliation page-main-content"></div>`).appendTo(me
-		// 	.page.main);
-		// const empty_state = __(
-		// 	"Upload a bank statement, link or reconcile a bank account");
-		// me.$main_section.append(
-		// 	`<div class="flex justify-center align-center text-muted"
-		// 	style="height: 50vh; display: flex;"><h5 class="text-muted">${empty_state}</h5></div>`
-		// );
 		me.clear_page_content();
 		me.make_bankwizard_tool();
 		me.add_actions();
@@ -49,7 +39,6 @@ kefiya.tools.bankWizard = class BankWizard {
 					doc: data[0],
 				}, function(e) {
 					if (e.message.status == true) {
-						// me.row.remove();
 						kefiya.tools.bankWizardList.ref_items.splice(0,1);
 						kefiya.tools.bankWizardList.render();
 						setTimeout(
@@ -72,7 +61,6 @@ kefiya.tools.bankWizard = class BankWizard {
 		const me = this;
 		me.page.clear_fields();
 		$(me.page.body).find('.frappe-list').remove();
-		// me.$main_section.empty();
 	}
 
 	make_bankwizard_tool() {
@@ -107,9 +95,7 @@ kefiya.tools.bankWizardTool = class BankWizardTool extends frappe.views.BaseList
 
 	setup_defaults() {
 		super.setup_defaults();
-		// this.page_title = __("Bank Reconciliation");
-		// this.doctype = 'Payment Entry';
-		this.fields = ['party_type', 'party', 'bank_party_name', 'bank_party_iban'];
+		this.fields = ['date', 'deposit', 'withdrawal', 'description', 'bank_party_iban'];
 	}
 
 	setup_view() {
@@ -129,14 +115,12 @@ kefiya.tools.bankWizardTool = class BankWizardTool extends frappe.views.BaseList
 	}
 
 	before_refresh() {
-		// kefiya.tools.bankWizardObj.clear_page_content()
 		frappe.model.with_doctype("Bank Transaction", () => {
 			frappe.call({
 				method: "kefiya.utils.client.get_missing_bank_accounts",
 				args: {},
 				callback(r) {
 					this.ref_items = r.message;
-					// kefiya.tools.bankWizardObj.make();
 				}
 			});
 		});
@@ -149,18 +133,10 @@ kefiya.tools.bankWizardTool = class BankWizardTool extends frappe.views.BaseList
 	render() {
 		const me = this;
 		me.data = me.ref_items;
-		// Add Query filter to party_type field
-		// me.page.fields_dict.party_type.df.get_query = function() {
-		// 	return {
-		// 		filters: {
-		// 			"name": ["in", ["Customer", "Supplier"]]
-		// 		}
-		// 	};
-		// };
 		me.page.btn_secondary.click(function(/* e */) {
 			window.location.reload(false);
 		});
-		this.$result.find('.list-row-container').remove();
+		this.$result.find('.list-row-contain').remove();
 		$('[data-fieldname="name"]').remove();
 		$('[data-fieldname="payment_type"]').remove();
 		$('[data-fieldname="title"]').remove();
@@ -168,9 +144,7 @@ kefiya.tools.bankWizardTool = class BankWizardTool extends frappe.views.BaseList
 		me.data.map((value) => {
 			if (me.ref_items.filter(item => (item.name === value.name)).length >
 				0) {
-				const row = $('<div class="list-row-container">').data("data",
-					value).appendTo(me.$result).get(0);
-				// new erpnext.accounts.ReconciliationRow(row, value);
+				const row = $('<div class="list-row-contain"></div>').data("data", value).appendTo(me.$result).get(0);
 				new kefiya.tools.bankWizardRow(row, value);
 			}
 		});
@@ -191,19 +165,16 @@ kefiya.tools.bankWizardRow = class BankWizardRow {
 		this.bind_events();
 	}
 
-	make() {
+	make() {		
+		this.data.date = frappe.datetime.str_to_user(this.data.date);
+		this.data.deposit = format_currency(this.data.deposit, this.data.currency);
+		this.data.withdrawal = format_currency(this.data.withdrawal, this.data.currency);
 		$(this.row).append(frappe.render_template("bank_account_wizard_row",
 			this.data));
 	}
 
 	bind_events() {
 		const me = this;
-		/*
-		$(me.row).on('click', '.clickable-section', function() {
-			me.bank_entry = $(this).attr("data-name");
-			frappe.set_route("Form", "Payment Entry", me.bank_entry)
-		})
-		*/
 		$(me.row).on('click', '.new-bank-account', function() {
 			kefiya.iban_tools.setPartyBankAccount({
 				doc: me.data
