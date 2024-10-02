@@ -138,6 +138,27 @@ kefiya.iban_tools = {
 									reqd: 1,
 									default: frm.doc.bank_party_iban,
 								}, {
+									label: 'Date',
+									fieldname: 'date',
+									fieldtype: 'Date',
+									read_only: 1,
+									default: frm.doc.date,
+								}, {
+									label: 'Depost',
+									fieldname: 'deposit',
+									fieldtype: 'Currency',
+									read_only: 1,
+									default: frm.doc.deposit,
+								},  {
+									label: 'Withdrawal',
+									fieldname: 'withdrawal',
+									fieldtype: 'Currency',
+									read_only: 1,
+									default: frm.doc.withdrawal,
+								},  {
+									fieldname: 'col_break1',
+									fieldtype: 'Column Break',
+								}, {
 									label: 'Sender',
 									fieldname: 'sender',
 									fieldtype: 'Data',
@@ -145,9 +166,6 @@ kefiya.iban_tools = {
 									reqd: 1,
 									default: frm.doc.bank_party_name,
 								}, {
-									fieldname: 'col_break1',
-									fieldtype: 'Column Break',
-								},{
 									label: 'Party Type',
 									fieldname: 'party_type',
 									fieldtype: 'Link',
@@ -165,6 +183,12 @@ kefiya.iban_tools = {
 									reqd: 1,
 									default: frm.doc.party,
 									options: defalutValue
+								},  {
+									label: 'Description',
+									fieldname: 'description',
+									fieldtype: 'Small Text',
+									default: frm.doc.description,
+									read_only: 1,
 								}, {
 									label: 'GL Account',
 									fieldname: 'gl_account',
