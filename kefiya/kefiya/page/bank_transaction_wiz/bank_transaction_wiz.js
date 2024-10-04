@@ -46,28 +46,48 @@ kefiya.tools.assignWizard = class assignWizard {
 		me.make_assignWizard_tool(result);
 		// me.add_actions();
 	}
-
-	add_custom(){
-		// add a dropdown button in a group
+	
+	async add_custom() {
 		const me = this;
-		me.page.add_inner_button('Sales Invoice', () => this.change_match_against('Sales Invoice'), 'Match Against')
-		me.page.add_inner_button('Purchase Invoice', () => this.change_match_against('Purchase Invoice'), 'Match Against')
-		me.page.add_inner_button('Journal Entry', () => this.change_match_against('Journal Entry'), 'Match Against')		
+		const settings = await me.fetchKefiyaSettings();
+		const assign_against = settings.assign_against; 
+
+		const tab_container = $('<div class="btn-group" role="group" aria-label="Match Against Tabs" style="margin: 10px 10px;"></div>')
+			.appendTo(this.page.main);
+	
+		const tabs = [
+			{ label: 'Sales Invoice', value: 'Sales Invoice' },
+			{ label: 'Purchase Invoice', value: 'Purchase Invoice' },
+			{ label: 'Journal Entry', value: 'Journal Entry' },
+		];
+	
+		tabs.forEach((tab, index) => {
+			const isActive = (tab.value === assign_against) ? 'active' : '';
+			const button_margin = index < tabs.length - 1 ? 'mr-2' : ''; 
+	
+			const tab_element = $(`<button type="button" class="btn btn-default btn-xs center-block ${isActive} ${button_margin}">${tab.label}</button>`)
+				.appendTo(tab_container);
+			
+			tab_element.on('click', () => this.change_match_against(tab.value));
+		});
 	}
-
-	change_match_against(selected_match){
+			
+	
+	change_match_against(selected_match) {
 		const me = this;
+		$(me.page.main).find('.btn-group .btn').removeClass('active');
+		$(me.page.main).find(`.btn:contains('${selected_match}')`).addClass('active');
+	
 		frappe.call({
 			method: "kefiya.utils.client.change_match_against",
 			args: {
 				selected_match: selected_match
 			},
 			callback: function (r) {
-				me.make()
+				me.make();
 			}
 		});
-
-	}
+	}	
 
 	add_actions() {
 		const me = this;
@@ -155,11 +175,11 @@ kefiya.tools.assignWizard = class assignWizard {
 					};
 			});
 		} else if (kefiyaSettings.assign_against==='Journal Entry'){
-			frappe.model.with_doctype("Journal Entry", () => {
+			frappe.model.with_doctype("Bank Transaction", () => {
 				kefiya.tools.assignWizardList =
 					new kefiya.tools.AssignWizardTool({
 						parent: me.parent,
-						doctype: "Journal Entry",
+						doctype: "Bank Transaction",
 						page_title: __(me.page.title),
 						kefiyaSettings: kefiyaSettings
 					});
@@ -169,8 +189,6 @@ kefiya.tools.assignWizard = class assignWizard {
 					};
 			});
 		}
-
-
 	}
 };
 
@@ -186,7 +204,7 @@ kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 	// It establishes default settings for various aspects of the assignment wizard tool's data display and behavior
 	setup_defaults() {
 		super.setup_defaults();
-		this.page_length = 100;
+		this.page_length = 20;
 		this.sort_order = "asc";
 		if (this.kefiyaSettings.assign_against === 'Sales Invoice'){
 			this.sort_by = "customer";
@@ -214,7 +232,11 @@ kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 			];
 		} else if (this.kefiyaSettings.assign_against === 'Journal Entry'){
 			this.fields = [
-				
+				"name",
+				"description",
+				"party",
+				"unallocated_amount",
+				"date"
 			];
 		}
 	}
@@ -259,7 +281,9 @@ kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 		} else if(this.kefiyaSettings.assign_against === 'Journal Entry'){
 			return Object.assign({}, args, {
 				...args.filters.push(
-					["Journal Entry", "docstatus", "=", 1],
+					["Bank Transaction", "docstatus", "=", 1],
+					["Bank Transaction", "status", "in", ["Unreconciled", "Settled"]],
+					["Bank Transaction", "unallocated_amount", ">", 0]
 				),
 			});
 		}
@@ -297,7 +321,6 @@ kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 			filters = {
 				docstatus: 1,
 				unallocated_amount: [">", 0],
-				...(matchAgainst === "Journal Entry" ? {} : { party }),
 				...(matchAgainst === "Sales Invoice" ? { deposit: [">", 0] } : {}),
 				...(matchAgainst === "Purchase Invoice" ? { withdrawal: [">", 0] } : {})
 			};
@@ -331,24 +354,17 @@ kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 		$('[data-original-title="Refresh"]').remove();
 		$('.custom-btn-group').remove()
 		
-		
 		let rowHTML;
 		let party_value;
 		rowHTML = '<div class="list-row-contain"></div>';
-
+		
 		if (matchAgainst=="Journal Entry"){
-			const r = await frappe.call(
-				this.get_row_call_args(party_value, optionValue, matchAgainst)
-			);
-			
-			// r.message - list of all bank transaction
-			if (Array.isArray(r.message) && r.message.length) {
-				const row = $(rowHTML).data("data", null).appendTo(me.$result).get(0);
-
+			for (const value of me.data) {
+				const row = $(rowHTML).data("data", value).appendTo(me.$result).get(0);
 				new kefiya.tools.AssignWizardRow(
 					row,
+					value,
 					null,
-					r.message,
 					optionValue,
 					matchAgainst
 				);
@@ -381,7 +397,6 @@ kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 				}
 			}
 		}
-
 	}
 
 	render_header() {
@@ -400,16 +415,13 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 		date_format = date_format.replace('yyyy', 'YYYY').replace('dd', 'DD').replace('mm', 'MM');
 
 		if (matchAgainst=="Journal Entry"){
-			this.data = {}
+			this.data = data
+			this.data.payments = payments;
 			this.row = row
-			this.data.payments = payments
-			this.data.payments.forEach(payment => {
-				payment.date = moment(payment.date).format(date_format);
-				payment.unallocated_amount = format_currency(payment.unallocated_amount, this.data.currency);
-			});
+			this.data.unallocated_amount = format_currency(this.data.unallocated_amount, this.data.currency);
 			this.data.optionValue = optionValue;
 			this.data.matchAgainst = matchAgainst;
-			this.make(matchAgainst)
+			this.make()
 			this.bind_events();
 		} else {
 			this.data = data;
@@ -427,19 +439,13 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 			this.data.optionValue = optionValue;
 			this.data.matchAgainst = matchAgainst;
 			this.row = row;
-			this.make(matchAgainst);
+			this.make();
 			this.bind_events();
 		}
 	}
 
-	make(matchAgainst) {
-		if (matchAgainst=="Journal Entry"){
-			// frappe.render_template("bank_tr", this.data)
-			$(this.row).append(frappe.render_template("bank_transaction_row", this.data));
-		} else {
-			$(this.row).append(frappe.render_template("bank_transaction_row", this.data));
-		}
-		
+	make() {
+		$(this.row).append(frappe.render_template("bank_transaction_row", this.data));
 	}
 
 	bind_events() {
@@ -518,20 +524,23 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 				{
 					label: 'Reference Number',
 					fieldname: 'reference_number',
-					fieldtype: 'Data',
+					fieldtype: 'Small Text',
+					read_only: 1,
 					reqd: 1,
 					default: filtered_bts[0].description,
 				}, {
 					label: 'Posting Date',
 					fieldname: 'posting_date',
-					fieldtype: 'Date',
-					default: "Today",
+					fieldtype: 'Data',
+					default: filtered_bts[0].date,
+					read_only: 1,
 					reqd: 1,
 				}, {
 					label: 'Cheque/Reference Date',
 					fieldname: 'reference_date',
-					fieldtype: 'Date',
-					default: "Today",
+					fieldtype: 'Data',
+					default: filtered_bts[0].date,
+					read_only: 1,
 					reqd: 1,
 				}, {
 					label: 'Mode of Payment',
