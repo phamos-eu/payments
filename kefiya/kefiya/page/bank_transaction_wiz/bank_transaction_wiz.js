@@ -235,7 +235,10 @@ kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 				"name",
 				"description",
 				"party",
+				"party_type",
 				"unallocated_amount",
+				"deposit",
+				"withdrawal",
 				"date"
 			];
 		}
@@ -514,9 +517,8 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 
 		// create journal entry from bank transaction
 		$(me.row).on("click", ".create_journal_entry", function () {
-			const filtered_bts = me.data.payments.filter(payment => payment.name === $(this).attr("data-name"));
-
-			let defalutValue = filtered_bts[0].party_type ? filtered_bts[0].party_type:filtered_bts[0].deposit > 0 ? 'Customer': 'Supplier'
+			
+			let defalutValue = me.data.party_type ? me.data.party_type:me.data.deposit > 0 ? 'Customer': 'Supplier'
 
 			let dialog = new frappe.ui.Dialog({
 				title: __('Create Journal Entry'),
@@ -527,19 +529,19 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 					fieldtype: 'Small Text',
 					read_only: 1,
 					reqd: 1,
-					default: filtered_bts[0].description,
+					default: me.data.description,
 				}, {
 					label: 'Posting Date',
 					fieldname: 'posting_date',
-					fieldtype: 'Data',
-					default: filtered_bts[0].date,
+					fieldtype: 'Date',
+					default: me.data.date,
 					read_only: 1,
 					reqd: 1,
 				}, {
 					label: 'Cheque/Reference Date',
 					fieldname: 'reference_date',
-					fieldtype: 'Data',
-					default: filtered_bts[0].date,
+					fieldtype: 'Date',
+					default: me.data.date,
 					read_only: 1,
 					reqd: 1,
 				}, {
@@ -588,13 +590,13 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 					fieldname: 'party',
 					fieldtype: 'Link',
 					options: defalutValue,
-					default: filtered_bts[0].party,
+					default: me.data.party,
 				},
 				],
 				primary_action_label: __('Submit'),
 				primary_action: function(/* values */) {
 
-					const bank_transaction_name = filtered_bts[0].name
+					const bank_transaction_name = me.data.name
 					const reference_number = dialog.get_value("reference_number")
 					const reference_date = dialog.get_value("reference_date")
 					const posting_date = dialog.get_value("posting_date")
