@@ -239,7 +239,10 @@ kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 				"unallocated_amount",
 				"deposit",
 				"withdrawal",
-				"date"
+				"date",
+				"company",
+				"currency",
+				"bank_account",
 			];
 		}
 	}
@@ -518,7 +521,7 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 		// create journal entry from bank transaction
 		$(me.row).on("click", ".create_journal_entry", function () {
 			
-			let defalutValue = me.data.party_type ? me.data.party_type:me.data.deposit > 0 ? 'Customer': 'Supplier'
+			let partyType = me.data.party_type ? me.data.party_type:me.data.deposit > 0 ? 'Customer': 'Supplier'
 
 			let dialog = new frappe.ui.Dialog({
 				title: __('Create Journal Entry'),
@@ -527,7 +530,7 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 					label: 'Reference Number',
 					fieldname: 'reference_number',
 					fieldtype: 'Small Text',
-					read_only: 1,
+					read_only:  me.data.description ? 1 : 0,
 					reqd: 1,
 					default: me.data.description,
 				}, {
@@ -535,14 +538,14 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 					fieldname: 'posting_date',
 					fieldtype: 'Date',
 					default: me.data.date,
-					read_only: 1,
+					read_only: me.data.date ? 1 : 0,
 					reqd: 1,
 				}, {
 					label: 'Cheque/Reference Date',
 					fieldname: 'reference_date',
 					fieldtype: 'Date',
 					default: me.data.date,
-					read_only: 1,
+					read_only: me.data.date ? 1 : 0,
 					reqd: 1,
 				}, {
 					label: 'Mode of Payment',
@@ -561,15 +564,34 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 					default: "Bank Entry",
 					reqd: 1,
 				}, {
-					label: 'Account',
-					fieldname: 'second_account',
+					label: partyType === 'Supplier' ? 'Expense Account' : 'Income Account',
+					fieldname: 'account',
 					fieldtype: 'Link',
 					options: "Account",
 					get_query: () => {
 						return {
 							filters: {
 								is_group: 0,
-								// company: this.company,
+								company: frappe.defaults.get_default("company"),
+								// account_type: partyType === 'Supplier' ? 'Expense Account' : 'Income Account',
+
+							},
+						};
+					},
+					reqd: 1,
+					
+				}, {
+					label: 'Party Account',
+					fieldname: 'party_account',
+					fieldtype: 'Link',
+					options: "Account",
+					get_query: () => {
+						return {
+							filters: {
+								is_group: 0,
+								company: frappe.defaults.get_default("company"),
+								account_type: partyType === 'Supplier' ? 'Payable' : 'Receivable',
+
 							},
 						};
 					},
@@ -580,7 +602,8 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 					fieldname: 'party_type',
 					fieldtype: 'Link',
 					options: "Party Type",
-					default: defalutValue,
+					default: partyType,
+					read_only: partyType ? 1 : 0,
 					onchange: function(){
 						dialog.fields_dict['party'].df.options = dialog.get_value('party_type');
 						dialog.fields_dict['party'].refresh();
@@ -589,9 +612,18 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 					label: 'Party',
 					fieldname: 'party',
 					fieldtype: 'Link',
-					options: defalutValue,
+					options: partyType,
 					default: me.data.party,
-				},
+					read_only: me.data.party ? 1 : 0,
+				}, {
+					fieldname: 'accounting_entries_section',
+					fieldtype: 'Section Break',
+				}, {
+					label: 'Accounting Entries',
+					fieldname: 'accounting_entries',
+					fieldtype: 'Text Editor',
+					read_only: 1,
+				}
 				],
 				primary_action_label: __('Submit'),
 				primary_action: function(/* values */) {
@@ -601,7 +633,8 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 					const reference_date = dialog.get_value("reference_date")
 					const posting_date = dialog.get_value("posting_date")
 					const entry_type = dialog.get_value("journal_entry_type")
-					const second_account = dialog.get_value("second_account")
+					const second_account = dialog.get_value("party_account")
+					const account = dialog.get_value("account")
 					const mode_of_payment = dialog.get_value("mode_of_payment")
 					const party_type = dialog.get_value("party_type")
 					const party = dialog.get_value("party")
@@ -615,6 +648,7 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 							posting_date,
 							entry_type,
 							second_account,
+							account,
 							mode_of_payment,
 							party_type,
 							party
@@ -628,7 +662,65 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 					});
 				},
 			});
+
 			dialog.show();
+
+
+			async function getCompanyAccount() {
+				const response = await frappe.db.get_value('Bank Account', me.data.bank_account, 'account');
+				return response.message.account;
+			}
+			
+			async function checkAndSetValues() {
+				const account = dialog.get_value('account');
+				const party_account = dialog.get_value('party_account');
+				
+				if (account && party_account) {
+					const company_account = await getCompanyAccount();
+					const withdrawal = format_currency(me.data.withdrawal, me.data.currency);
+					const deposit = format_currency(me.data.deposit, me.data.currency);
+			
+					dialog.set_value('accounting_entries', `
+						<table class="table-bordered table-hover">
+							<thead>
+								<tr>
+									<th class="text-left">Account</th>
+									<th class="text-right">Debit</th>
+									<th class="text-right">Credit</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>${account}</td>
+									<td class="text-right">${withdrawal}</td>
+									<td class="text-right">${deposit}</td>
+								</tr>
+								<tr>
+									<td>${party_account}</td>
+									<td class="text-right">${deposit}</td>
+									<td class="text-right">${withdrawal}</td>
+								</tr>
+								<tr>
+									<td>${party_account}</td>
+									<td class="text-right">${withdrawal}</td>
+									<td class="text-right">${deposit}</td>
+								</tr>
+								<tr>
+									<td>${company_account}</td>
+									<td class="text-right">${deposit}</td>
+									<td class="text-right">${withdrawal}</td>
+								</tr>
+							</tbody>
+						</table>
+					`);
+				} else {
+					dialog.set_value('accounting_entries', '');
+				}
+			}
+			
+			dialog.fields_dict['account'].df.onchange = checkAndSetValues;
+			dialog.fields_dict['party_account'].df.onchange = checkAndSetValues;
+			
 		});
 	}
 };

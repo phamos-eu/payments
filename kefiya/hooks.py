@@ -153,9 +153,9 @@ scheduler_events = {
 # Overriding Methods
 # ------------------------------
 #
-# override_whitelisted_methods = {
-#     "frappe.desk.doctype.event.event.get_events": "kefiya.event.get_events" # noqa: E501
-# }
+override_whitelisted_methods = {
+    "erpnext.accounts.doctype.bank_reconciliation_tool.bank_reconciliation_tool.create_journal_entry_bts": "kefiya.overrides.bank_reconciliation_tool.bank_reconciliation_tool.custom_create_journal_entry_bts"
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
