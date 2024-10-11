@@ -110,6 +110,7 @@ class ImportBankTransaction:
                     'unallocated_amount': amount,
                     'party_type': party_type,
                     'party': party,
+                    'bank_party_name': applicant_name,
                     'bank_party_account_number': bank_account_no,
                     'bank_party_iban': iban,
                     'docstatus': 1
