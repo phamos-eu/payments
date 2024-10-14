@@ -66,13 +66,27 @@ doctype_js = {
 
 # Installation
 # ------------
-after_migrate = "kefiya.setup.install.after_migrate"
+# after_migrate = "kefiya.setup.install.after_migrate"
 after_install = [
-    "kefiya.setup.install.after_migrate",
+    # "kefiya.setup.install.after_migrate",
     "kefiya.utils.install.after_install"
 ]
-before_uninstall = "kefiya.setup.install.before_uninstall"
+# before_uninstall = "kefiya.setup.install.before_uninstall"
 before_install = "kefiya.utils.install.before_install"
+
+fixtures = [
+    {"dt": "Custom Field", "filters": [
+        [
+            "module", "=", "Kefiya"
+        ]
+    ]},
+    # {"dt": "Property Setter", "filters": [
+    #     [
+    #         "module", "=", "Kefiya"
+    #     ]
+    # ]}
+]
+
 
 
 # Desk Notifications
