@@ -68,10 +68,10 @@ doctype_js = {
 # ------------
 # after_migrate = "kefiya.setup.install.after_migrate"
 after_install = [
-    # "kefiya.setup.install.after_migrate",
+    "kefiya.setup.install.after_migrate",
     "kefiya.utils.install.after_install"
 ]
-# before_uninstall = "kefiya.setup.install.before_uninstall"
+before_uninstall = "kefiya.setup.install.before_uninstall"
 before_install = "kefiya.utils.install.before_install"
 
 fixtures = [
