@@ -243,6 +243,7 @@ kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 				"company",
 				"currency",
 				"bank_account",
+				"bank_party_name",
 			];
 		}
 	}
@@ -527,6 +528,12 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 				title: __('Create Journal Entry'),
 				fields: [
 				{
+					label: 'Sender',
+					fieldname: 'sender',
+					fieldtype: 'Data',
+					read_only:  me.data.bank_party_name ? 1 : 0,
+					default: me.data.bank_party_name,
+				}, {
 					label: 'Reference Number',
 					fieldname: 'reference_number',
 					fieldtype: 'Small Text',
