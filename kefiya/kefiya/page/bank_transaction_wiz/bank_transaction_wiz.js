@@ -328,8 +328,8 @@ kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 			filters = {
 				docstatus: 1,
 				unallocated_amount: [">", 0],
-				...(matchAgainst === "Sales Invoice" ? { deposit: [">", 0] } : {}),
-				...(matchAgainst === "Purchase Invoice" ? { withdrawal: [">", 0] } : {})
+				...(matchAgainst === "Sales Invoice" ? { party, deposit: [">", 0] } : {}),
+				...(matchAgainst === "Purchase Invoice" ? { party, withdrawal: [">", 0] } : {})
 			};
 			order_by = "date";
 		} else {
