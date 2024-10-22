@@ -43,9 +43,6 @@ doctype_js = {
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
-# doctype_js = {
-#     "Payment Entry": "public/js/payment_entry_doctype.js",
-#     }
 
 # Home Pages
 # ----------
@@ -73,21 +70,6 @@ after_install = [
 ]
 before_uninstall = "kefiya.setup.install.before_uninstall"
 before_install = "kefiya.utils.install.before_install"
-
-fixtures = [
-    {"dt": "Custom Field", "filters": [
-        [
-            "module", "=", "Kefiya"
-        ]
-    ]},
-    # {"dt": "Property Setter", "filters": [
-    #     [
-    #         "module", "=", "Kefiya"
-    #     ]
-    # ]}
-]
-
-
 
 # Desk Notifications
 # ------------------
@@ -126,11 +108,11 @@ fixtures = [
 #         "on_trash": "method"
 #         }
 # }
-# doc_events = {
-#     "Bank Account": {
-#         "validate": "kefiya.utils.bank_account_controller.validate_unique_iban"  # noqa: E501
-#     }
-# }
+doc_events = {
+    "Bank Account": {
+        "validate": "kefiya.utils.bank_account_controller.validate_unique_iban"  # noqa: E501
+    }
+}
 
 
 # Scheduled Tasks
@@ -186,26 +168,26 @@ override_whitelisted_methods = {
 # User Data Protection
 # --------------------
 
-user_data_fields = [
-    {
-        "doctype": "{doctype_1}",
-        "filter_by": "{filter_by}",
-        "redact_fields": ["{field_1}", "{field_2}"],
-        "partial": 1,
-    },
-    {
-        "doctype": "{doctype_2}",
-        "filter_by": "{filter_by}",
-        "partial": 1,
-    },
-    {
-        "doctype": "{doctype_3}",
-        "strict": False,
-    },
-    {
-        "doctype": "{doctype_4}"
-    }
-]
+# user_data_fields = [
+#     {
+#         "doctype": "{doctype_1}",
+#         "filter_by": "{filter_by}",
+#         "redact_fields": ["{field_1}", "{field_2}"],
+#         "partial": 1,
+#     },
+#     {
+#         "doctype": "{doctype_2}",
+#         "filter_by": "{filter_by}",
+#         "partial": 1,
+#     },
+#     {
+#         "doctype": "{doctype_3}",
+#         "strict": False,
+#     },
+#     {
+#         "doctype": "{doctype_4}"
+#     }
+# ]
 
 # Authentication and authorization
 # --------------------------------
