@@ -10,8 +10,6 @@ class ImportBankTransaction:
         self.allow_error = allow_error
         self.bank_transactions = []
         self.kefiya_login = kefiya_login
-        self.default_customer = kefiya_login.default_customer
-        self.default_supplier = kefiya_login.default_supplier
         self.interactive = interactive
 
     def kefiya_import(self, fints_transaction):
@@ -33,12 +31,6 @@ class ImportBankTransaction:
                         _('Payment type not handled'),
                         'Kefiya Import Error'
                     )
-                    continue
-
-                if status == 'c' and not self.kefiya_login.enable_received:
-                    continue
-
-                if status == 'd' and not self.kefiya_login.enable_pay:
                     continue
 
                 txn_number = idx + 1
