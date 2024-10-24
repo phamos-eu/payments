@@ -109,145 +109,128 @@ kefiya.iban_tools = {
 			, function(data) {
 			
 			if (data.checkResults.bankCode) {
-				frappe.call({
-					method: "frappe.client.get_list",
-					args: {
-						doctype: "Kefiya Login",
-						fields: ["default_customer", "default_supplier"],
-					},
-					// quiet: false,
-					callback: function(r) {
-						if (r.message.some(e =>
-							e.default_customer === frm.doc.party ||
-							e.default_supplier === frm.doc.party
-						)) {
-							frappe.msgprint(__("Default party selected, please change party"));
-						} else {
-							
-							let defalutValue = frm.doc.party_type ? frm.doc.party_type:frm.doc.deposit > 0 ? 'Customer': 'Supplier'
-							let dialog = new frappe.ui.Dialog({
-								title: __('Create Bank Account'),
-								fields: [{
-									label: 'Bank Account',
-									fieldtype: 'Section Break',
-								}, {
-									label: 'IBAN',
-									fieldname: 'iban',
-									fieldtype: 'Data',
-									read_only: 1,
-									reqd: 1,
-									default: frm.doc.bank_party_iban,
-								}, {
-									label: 'Date',
-									fieldname: 'date',
-									fieldtype: 'Date',
-									read_only: 1,
-									default: frm.doc.date,
-								}, {
-									label: 'Depost',
-									fieldname: 'deposit',
-									fieldtype: 'Currency',
-									read_only: 1,
-									default: frm.doc.deposit,
-								},  {
-									label: 'Withdrawal',
-									fieldname: 'withdrawal',
-									fieldtype: 'Currency',
-									read_only: 1,
-									default: frm.doc.withdrawal,
-								},  {
-									fieldname: 'col_break1',
-									fieldtype: 'Column Break',
-								}, {
-									label: 'Sender',
-									fieldname: 'sender',
-									fieldtype: 'Data',
-									// read_only: 1,
-									reqd: 1,
-									default: frm.doc.bank_party_name,
-								}, {
-									label: 'Party Type',
-									fieldname: 'party_type',
-									fieldtype: 'Link',
-									options: "Party Type",
-									reqd: 1,
-									default: defalutValue,
-									onchange: function(){
-										dialog.fields_dict['party'].df.options = dialog.get_value('party_type');
-										dialog.fields_dict['party'].refresh();
-									}
-								}, {
-									label: 'Party',
-									fieldname: 'party',
-									fieldtype: 'Link',
-									reqd: 1,
-									default: frm.doc.party,
-									options: defalutValue
-								},  {
-									label: 'Description',
-									fieldname: 'description',
-									fieldtype: 'Small Text',
-									default: frm.doc.description,
-									read_only: 1,
-								}, {
-									label: 'GL Account',
-									fieldname: 'gl_account',
-									fieldtype: 'Data',
-									read_only: 1,
-									hidden: 1,
-									default: (
-										frm.doc.payment_type == "Pay"
-									) ? frm.doc.paid_from : frm.doc.paid_to
-								}, {
-									label: 'Bank Details',
-									fieldtype: 'Section Break',
-									description:(data.bankData.name)? 'The below data is fetched by using <a href="https://openiban.com/" target="_blank">OpenIban webservice</a>, please make sure that you validate the result manually or by using the validation service.': ''
-								}, {
-									label: 'Bank Name',
-									fieldname: 'bank_name',
-									fieldtype: 'Data',
-									// read_only: 1,
-									reqd: 1,
-									default: data.bankData.name,
-								}, {
-									label: 'BIC',
-									fieldname: 'bic',
-									fieldtype: 'Data',
-									// read_only: 1,
-									reqd: 1,
-									default: data.bankData.bic,
-								}, {
-									fieldname: 'col_break2',
-									fieldtype: 'Column Break',
-								}, {
-									label: 'Bank Code',
-									fieldname: 'bank_code',
-									fieldtype: 'Data',
-									// read_only: 1,
-									reqd: 1,
-									default: data.bankData.bankCode,
-								}, ],
-								primary_action_label: __('Submit'),
-								primary_action: function(/* values */) {
-									
-									frm.doc.party =  dialog.get_value("party")
-									frm.doc.party_type =  dialog.get_value("party_type")
-									frm.doc.bank_party_name = dialog.get_value("sender")
-		
-
-									data.bankData.name =  dialog.get_value("bank_name")
-									data.bankData.bankCode = dialog.get_value("bank_code")
-									data.bankData.bic = dialog.get_value('bic')
-									
-									kefiya.iban_tools.createPartyBankAccount(frm.doc, data, callback);
-									dialog.hide();
-								},
-							});
-							dialog.show();
+				
+				let defalutValue = frm.doc.party_type ? frm.doc.party_type:frm.doc.deposit > 0 ? 'Customer': 'Supplier'
+				let dialog = new frappe.ui.Dialog({
+					title: __('Create Bank Account'),
+					fields: [{
+						label: 'Bank Account',
+						fieldtype: 'Section Break',
+					}, {
+						label: 'IBAN',
+						fieldname: 'iban',
+						fieldtype: 'Data',
+						read_only: 1,
+						reqd: 1,
+						default: frm.doc.bank_party_iban,
+					}, {
+						label: 'Date',
+						fieldname: 'date',
+						fieldtype: 'Date',
+						read_only: 1,
+						default: frm.doc.date,
+					}, {
+						label: 'Depost',
+						fieldname: 'deposit',
+						fieldtype: 'Currency',
+						read_only: 1,
+						default: frm.doc.deposit,
+					},  {
+						label: 'Withdrawal',
+						fieldname: 'withdrawal',
+						fieldtype: 'Currency',
+						read_only: 1,
+						default: frm.doc.withdrawal,
+					},  {
+						fieldname: 'col_break1',
+						fieldtype: 'Column Break',
+					}, {
+						label: 'Sender',
+						fieldname: 'sender',
+						fieldtype: 'Data',
+						// read_only: 1,
+						reqd: 1,
+						default: frm.doc.bank_party_name,
+					}, {
+						label: 'Party Type',
+						fieldname: 'party_type',
+						fieldtype: 'Link',
+						options: "Party Type",
+						reqd: 1,
+						default: defalutValue,
+						onchange: function(){
+							dialog.fields_dict['party'].df.options = dialog.get_value('party_type');
+							dialog.fields_dict['party'].refresh();
 						}
+					}, {
+						label: 'Party',
+						fieldname: 'party',
+						fieldtype: 'Link',
+						reqd: 1,
+						default: frm.doc.party,
+						options: defalutValue
+					},  {
+						label: 'Description',
+						fieldname: 'description',
+						fieldtype: 'Small Text',
+						default: frm.doc.description,
+						read_only: 1,
+					}, {
+						label: 'GL Account',
+						fieldname: 'gl_account',
+						fieldtype: 'Data',
+						read_only: 1,
+						hidden: 1,
+						default: (
+							frm.doc.payment_type == "Pay"
+						) ? frm.doc.paid_from : frm.doc.paid_to
+					}, {
+						label: 'Bank Details',
+						fieldtype: 'Section Break',
+						description:(data.bankData.name)? 'The below data is fetched by using <a href="https://openiban.com/" target="_blank">OpenIban webservice</a>, please make sure that you validate the result manually or by using the validation service.': ''
+					}, {
+						label: 'Bank Name',
+						fieldname: 'bank_name',
+						fieldtype: 'Data',
+						// read_only: 1,
+						reqd: 1,
+						default: data.bankData.name,
+					}, {
+						label: 'BIC',
+						fieldname: 'bic',
+						fieldtype: 'Data',
+						// read_only: 1,
+						reqd: 1,
+						default: data.bankData.bic,
+					}, {
+						fieldname: 'col_break2',
+						fieldtype: 'Column Break',
+					}, {
+						label: 'Bank Code',
+						fieldname: 'bank_code',
+						fieldtype: 'Data',
+						// read_only: 1,
+						reqd: 1,
+						default: data.bankData.bankCode,
+					}, ],
+					primary_action_label: __('Submit'),
+					primary_action: function(/* values */) {
+						
+						frm.doc.party =  dialog.get_value("party")
+						frm.doc.party_type =  dialog.get_value("party_type")
+						frm.doc.bank_party_name = dialog.get_value("sender")
+
+
+						data.bankData.name =  dialog.get_value("bank_name")
+						data.bankData.bankCode = dialog.get_value("bank_code")
+						data.bankData.bic = dialog.get_value('bic')
+						
+						kefiya.iban_tools.createPartyBankAccount(frm.doc, data, callback);
+						dialog.hide();
 					},
-					// error: function(e){},
 				});
+				dialog.show();
+					
 			} else {
 				frappe.throw(__("Could not fetch bank details"));
 			}

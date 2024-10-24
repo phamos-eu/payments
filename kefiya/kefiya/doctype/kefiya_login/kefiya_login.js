@@ -24,8 +24,6 @@ frappe.ui.form.on('Kefiya Login', {
 		});
 	},
 	refresh: function(frm) {
-		frm.events.enable_received(frm);
-		frm.events.enable_pay(frm);
 		// frm.set_df_property("account_nr","options",frm.fields_dict.account_nr.value)
 		// if(frm.fields_dict.account_nr.df.reqd && )
 		// frm.toggle_reqd("account_nr",true);
@@ -42,12 +40,6 @@ frappe.ui.form.on('Kefiya Login', {
 			frm.toggle_display("transaction_settings_section",false)
 		}
 		*/
-	},
-	enable_received: function(frm){
-		frm.toggle_reqd("default_customer", frm.doc.enable_received);
-	},
-	enable_pay: function(frm){
-		frm.toggle_reqd("default_supplier", frm.doc.enable_pay);
 	},
 	/* account_nr: function(frm) {
 		if(frm.doc.account_nr){
