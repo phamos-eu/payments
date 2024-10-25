@@ -55,13 +55,11 @@ def export_request(payment_request_name):
         elif doc.payment_request_type == "Inward":
             postext += "Lastschrift " + doc.name + ';'
 
-        postext += doc.mode_of_payment + ';'
+        postext += (doc.mode_of_payment or '') + ';'
 
         if doc.payment_request_type == "Outward":
-            # postext += frappe.format(flt(invoicedoc.grand_total), {"fieldtype": "Float"}) + ';'
             postext += str(frappe.format(invoicedoc.grand_total)) + ';'
         elif doc.payment_request_type == "Inward":
-            # postext += frappe.format(-flt(invoicedoc.grand_total), {"fieldtype": "Float"}) + ';'
             postext += "-"
             postext += str(frappe.format(invoicedoc.grand_total)) + ';'
 
