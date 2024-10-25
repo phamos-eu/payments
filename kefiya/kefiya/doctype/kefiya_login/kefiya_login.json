@@ -125,7 +125,7 @@
   {
    "description": "From python-fints 4.x version, the default product_id is removed, so that each user needs to acquire its own:\nhttps://python-fints.readthedocs.io/en/latest/upgrading_3_4.html\n",
    "fieldname": "product_id",
-   "fieldtype": "Data",
+   "fieldtype": "Password",
    "label": "Product Id"
   },
   {
@@ -143,7 +143,7 @@
  ],
  "icon": "fa fa-university",
  "links": [],
- "modified": "2024-10-24 13:07:28.194359",
+ "modified": "2024-10-25 14:32:19.056703",
  "modified_by": "Administrator",
  "module": "Kefiya",
  "name": "Kefiya Login",
