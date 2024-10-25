@@ -49,7 +49,7 @@ class FinTSController:
                 self.kefiya_login.fints_login,
                 self.kefiya_login.get_password("fints_password"),
                 self.kefiya_login.fints_url,
-                product_id=self.kefiya_login.product_id,
+                product_id=self.kefiya_login.get_password("product_id"),
                 mode=FinTSClientMode.INTERACTIVE,
             )
         except Exception as e:
