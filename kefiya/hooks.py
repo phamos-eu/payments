@@ -63,7 +63,7 @@ doctype_js = {
 
 # Installation
 # ------------
-# after_migrate = "kefiya.setup.install.after_migrate"
+after_migrate = "kefiya.setup.install.after_migrate"
 after_install = [
     "kefiya.setup.install.after_migrate",
     "kefiya.utils.install.after_install"
