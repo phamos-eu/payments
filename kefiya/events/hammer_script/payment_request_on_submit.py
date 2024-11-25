@@ -31,6 +31,12 @@ def export_request(payment_request_name):
         partybankaccount = frappe.get_doc("Bank Account", doc.party_bank_account)
         bankaccount = frappe.get_doc("Bank Account", doc.bank_account)
         invoicedoc = frappe.get_doc(doc.reference_doctype, doc.reference_name)
+        partydoc = frappe.get_doc(doc.party_type, doc.party)
+        partyname = (
+            partydoc.customer_name if doc.party_type == 'Customer' 
+            else partydoc.supplier_name if doc.party_type == 'Supplier' 
+            else ''
+        )
 
         postext = (doc.company or '')+ ';'
         postext += (bankaccount.iban or '') + ';'
@@ -45,7 +51,7 @@ def export_request(payment_request_name):
         else:
             postext += ';;'
 
-        postext += (doc.party or '') + ';'
+        postext += (partyname or '') + ';'
         postext += (partybankaccount.iban or '') + ';'
         postext += (partybankaccount.branch_code or '') + ';'
 
