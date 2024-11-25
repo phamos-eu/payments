@@ -32,22 +32,22 @@ def export_request(payment_request_name):
         bankaccount = frappe.get_doc("Bank Account", doc.bank_account)
         invoicedoc = frappe.get_doc(doc.reference_doctype, doc.reference_name)
 
-        postext = doc.company + ';'
-        postext += bankaccount.iban + ';'
-        postext += bankaccount.branch_code + ';'
+        postext = (doc.company or '')+ ';'
+        postext += (bankaccount.iban or '') + ';'
+        postext += (bankaccount.branch_code or '') + ';'
 
         if doc.transaction_date:
             date_obj = datetime.strptime(str(doc.transaction_date), '%Y-%m-%d')
             formatted_date = date_obj.strftime('%d.%m.%Y')
             date = formatted_date
             
-            postext += date + ';'+ date + ';'
+            postext += (date or '') + ';'+ (date or '') + ';'
         else:
             postext += ';;'
 
-        postext += doc.party + ';'
-        postext += partybankaccount.iban + ';'
-        postext += partybankaccount.branch_code + ';'
+        postext += (doc.party or '') + ';'
+        postext += (partybankaccount.iban or '') + ';'
+        postext += (partybankaccount.branch_code or '') + ';'
 
         if doc.payment_request_type == "Outward":
             bill_no = invoicedoc.bill_no if doc.reference_doctype == "Purchase Invoice" else ""
@@ -63,7 +63,7 @@ def export_request(payment_request_name):
             postext += "-"
             postext += str(frappe.format(invoicedoc.grand_total)) + ';'
 
-        postext += doc.currency + '\n'
+        postext += (doc.currency or '') + '\n'
         buffer.write(postext)
 
         settings = frappe.get_single("Kefiya Settings")
