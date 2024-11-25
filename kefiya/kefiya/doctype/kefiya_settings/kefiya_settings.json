@@ -8,9 +8,7 @@
   "bank_account",
   "assign_against",
   "show_entries_in_payment_assignment_wizard",
-  "submit_payment_entry",
   "column_break_gv35w",
-  "mode_of_payment",
   "column_break_qzdrd",
   "payment_request_csv_action",
   "recipient_email"
@@ -24,23 +22,11 @@
    "options": "Payment Entry\nBank Transaction"
   },
   {
-   "fieldname": "mode_of_payment",
-   "fieldtype": "Link",
-   "label": "Mode of Payment",
-   "options": "Mode of Payment"
-  },
-  {
    "fieldname": "assign_against",
    "fieldtype": "Select",
    "hidden": 1,
    "label": "Match Against",
    "options": "Sales Invoice\nPurchase Invoice\nJournal Entry"
-  },
-  {
-   "default": "0",
-   "fieldname": "submit_payment_entry",
-   "fieldtype": "Check",
-   "label": "Submit Payment Entry"
   },
   {
    "fieldname": "column_break_qzdrd",
@@ -76,7 +62,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-09-23 17:49:10.999958",
+ "modified": "2024-10-28 12:00:42.496298",
  "modified_by": "Administrator",
  "module": "Kefiya",
  "name": "Kefiya Settings",

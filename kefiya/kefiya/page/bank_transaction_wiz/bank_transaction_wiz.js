@@ -359,6 +359,7 @@ kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 		$('[data-fieldname="status"]').remove();
 		$('[data-fieldname="title"]').remove();
 		$('[data-original-title="Refresh"]').remove();
+		$('[data-original-title="Reload List"]').remove();
 		$('.custom-btn-group').remove()
 		
 		let rowHTML;

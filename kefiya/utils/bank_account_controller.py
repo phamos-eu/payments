@@ -38,19 +38,6 @@ class BankAccountController:
                     'User {0} does not have access to this method'
                 ).format(frappe.bold(frappe.session.user)))
 
-            # Check for Kefiya Login default parties
-            if frappe.get_all(
-                'Kefiya Login',
-                or_filters=[
-                    ['default_customer', '=', payment_doc.get('party')],
-                    ['default_supplier', '=', payment_doc.get('party')]
-                ],
-                ignore_permissions=ignore_permissions
-            ):
-                raise ValueError(_(
-                    'Default party selected, please change party'
-                ))
-
             bankData = json.loads(bankData)
             bankName = bankData.get('name')
             bankCode = bankData.get('bankCode')
