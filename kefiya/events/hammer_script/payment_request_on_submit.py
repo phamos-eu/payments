@@ -28,8 +28,8 @@ def export_request(payment_request_name):
 
     try:
         doc = frappe.get_doc("Payment Request", payment_request_name)
-        partybankaccount = frappe.get_doc("Bank Account", doc.party_bank_account)
-        bankaccount = frappe.get_doc("Bank Account", doc.bank_account)
+        partybankaccount = frappe.get_doc("Bank Account", doc.bank_account)
+        bankaccount = frappe.get_doc("Bank Account", doc.company_bank_account)
         invoicedoc = frappe.get_doc(doc.reference_doctype, doc.reference_name)
         partydoc = frappe.get_doc(doc.party_type, doc.party)
         partyname = (
