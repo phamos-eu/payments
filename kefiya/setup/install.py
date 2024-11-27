@@ -41,17 +41,16 @@ def get_custom_fields():
 			"insert_after": "company",
 		},
 		{
-			"label": "Party Bank Account",
-			"fieldname": "party_bank_account",
+			"label": "Company Bank Account",
+			"fieldname": "company_bank_account",
 			"fieldtype": "Link",
             "options": "Bank Account",
-            "depends_on": "party",
 			"insert_after": "kefiya_section",
 		},
 		{
 			"fieldname": "kefiya_last_section",
 			"fieldtype": "Section Break",
-			"insert_after": "party_bank_account"
+			"insert_after": "company_bank_account"
 		}
 	]
 
