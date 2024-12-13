@@ -229,6 +229,7 @@ kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 				"due_date",
 				"currency",
 				"paid_amount",
+				"bill_no"
 			];
 		} else if (this.kefiyaSettings.assign_against === 'Journal Entry'){
 			this.fields = [
