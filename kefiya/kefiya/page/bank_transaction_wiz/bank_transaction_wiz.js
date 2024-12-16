@@ -19,20 +19,8 @@ kefiya.tools.assignWizard = class assignWizard {
 		this.page = this.parent.page;
 		this.remove_page_buttons();
 		this.make();
-<<<<<<< Updated upstream
 	}
 	remove_page_buttons(){
-=======
-		// this.add_custom()
-	}
-	remove_page_buttons(){
-		// $('.custom-actions').remove()
-		// $('.page-form').remove();	
-		// $('.standard-filter-section').remove()
-
-		// $('.page-form .standard-filter-section .form-group').remove();
-		// $('[data-fieldname="bank_account"]').remove();
->>>>>>> Stashed changes
 		$('.menu-btn-group').remove()
 	}
 
