@@ -137,6 +137,7 @@ def create_payment_entry(bank_transaction_name, invoice_name, match_against):
     
     unallocated_amount = bank_transaction.unallocated_amount
     outstanding_amount = invoice_doc.outstanding_amount
+    diff = frappe.format(abs(unallocated_amount - outstanding_amount), "Currency")
     paid_amount = outstanding_amount
 
     if unallocated_amount <= outstanding_amount:
@@ -173,7 +174,7 @@ def create_payment_entry(bank_transaction_name, invoice_name, match_against):
     payment_entry.insert()
     payment_entry.submit()
     
-    return paid_amount, payment_entry.name
+    return paid_amount, payment_entry.name, unallocated_amount, outstanding_amount, diff
 
 @frappe.whitelist()
 def change_match_against(selected_match):
