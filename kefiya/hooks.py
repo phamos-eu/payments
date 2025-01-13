@@ -135,8 +135,9 @@ doc_events = {
 #         "kefiya.tasks.monthly"
 #     ]
 # }
+
 scheduler_events = {
-    "daily_long": [
+    "hourly": [
         "kefiya.kefiya.doctype.kefiya_schedule.kefiya_schedule.scheduled_import_fints_payments"  # noqa: E501
     ]
 }
