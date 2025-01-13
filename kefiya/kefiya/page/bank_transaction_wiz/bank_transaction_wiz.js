@@ -19,11 +19,8 @@ kefiya.tools.assignWizard = class assignWizard {
 		this.page = this.parent.page;
 		this.remove_page_buttons();
 		this.make();
-		this.add_custom()
 	}
 	remove_page_buttons(){
-		// $('.custom-actions').remove()
-		$('.page-form').remove();	
 		$('.menu-btn-group').remove()
 	}
 
@@ -42,36 +39,10 @@ kefiya.tools.assignWizard = class assignWizard {
 		const me = this;
 		me.page.hide_icon_group();
 		me.clear_page_content();
-		let result = await this.fetchKefiyaSettings()
-		me.make_assignWizard_tool(result);
+		let result = await this.fetchKefiyaSettings();
+		me.make_assignWizard_tool(result, me.change_match_against.bind(me));
 		// me.add_actions();
 	}
-	
-	async add_custom() {
-		const me = this;
-		const settings = await me.fetchKefiyaSettings();
-		const assign_against = settings.assign_against; 
-
-		const tab_container = $('<div class="btn-group" role="group" aria-label="Match Against Tabs" style="margin: 10px 10px;"></div>')
-			.appendTo(this.page.main);
-	
-		const tabs = [
-			{ label: 'Sales Invoice', value: 'Sales Invoice' },
-			{ label: 'Purchase Invoice', value: 'Purchase Invoice' },
-			{ label: 'Journal Entry', value: 'Journal Entry' },
-		];
-	
-		tabs.forEach((tab, index) => {
-			const isActive = (tab.value === assign_against) ? 'active' : '';
-			const button_margin = index < tabs.length - 1 ? 'mr-2' : ''; 
-	
-			const tab_element = $(`<button type="button" class="btn btn-default btn-xs center-block ${isActive} ${button_margin}">${tab.label}</button>`)
-				.appendTo(tab_container);
-			
-			tab_element.on('click', () => this.change_match_against(tab.value));
-		});
-	}
-			
 	
 	change_match_against(selected_match) {
 		const me = this;
@@ -143,7 +114,7 @@ kefiya.tools.assignWizard = class assignWizard {
 		$(me.page.body).find(".frappe-list").remove();
 	}
 
-	make_assignWizard_tool(kefiyaSettings) {
+	make_assignWizard_tool(kefiyaSettings, changeMatchAgainst) {
 		const me = this;
 		// ensure that the metadata for the "Sales Invoice" DocType is loaded before proceeding with the wizard setup(AssignWizardTool).
 		if (kefiyaSettings.assign_against==='Sales Invoice'){
@@ -153,7 +124,8 @@ kefiya.tools.assignWizard = class assignWizard {
 						parent: me.parent,
 						doctype: "Sales Invoice",
 						page_title: __(me.page.title),
-						kefiyaSettings: kefiyaSettings
+						kefiyaSettings: kefiyaSettings,
+						changeMatchAgainst: changeMatchAgainst,
 					});
 				frappe.pages["bank-transaction-wiz"].refresh =
 					function (/* wrapper */) {
@@ -167,7 +139,8 @@ kefiya.tools.assignWizard = class assignWizard {
 						parent: me.parent,
 						doctype: "Purchase Invoice",
 						page_title: __(me.page.title),
-						kefiyaSettings: kefiyaSettings
+						kefiyaSettings: kefiyaSettings,
+						changeMatchAgainst: changeMatchAgainst,
 					});
 				frappe.pages["bank-transaction-wiz"].refresh =
 					function (/* wrapper */) {
@@ -181,7 +154,8 @@ kefiya.tools.assignWizard = class assignWizard {
 						parent: me.parent,
 						doctype: "Bank Transaction",
 						page_title: __(me.page.title),
-						kefiyaSettings: kefiyaSettings
+						kefiyaSettings: kefiyaSettings,
+						changeMatchAgainst: changeMatchAgainst
 					});
 				frappe.pages["bank-transaction-wiz"].refresh =
 					function (/* wrapper */) {
@@ -198,6 +172,7 @@ kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 	constructor(opts) {
 		super(opts);
 		this.kefiyaSettings = opts.kefiyaSettings
+		this.change_match_against = opts.changeMatchAgainst
 		this.show();
 	}
 
@@ -229,6 +204,7 @@ kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 				"due_date",
 				"currency",
 				"paid_amount",
+				"bill_no",
 			];
 		} else if (this.kefiyaSettings.assign_against === 'Journal Entry'){
 			this.fields = [
@@ -348,6 +324,30 @@ kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 		};
 	}
 
+	async add_custom() {
+		const assign_against = this.kefiyaSettings.assign_against;
+
+		const tab_container = $('<div class="btn-group" role="group" aria-label="Match Against Tabs" style="margin: 10px 10px;"></div>');
+	
+		const tabs = [
+			{ label: 'Sales Invoice', value: 'Sales Invoice' },
+			{ label: 'Purchase Invoice', value: 'Purchase Invoice' },
+			{ label: 'Journal Entry', value: 'Journal Entry' },
+		];
+	
+		tabs.forEach((tab, index) => {
+			const isActive = (tab.value === assign_against) ? 'active' : '';
+			const button_margin = index < tabs.length - 1 ? 'mr-2' : ''; 
+	
+			const tab_element = $(`<button type="button" class="btn btn-default btn-xs center-block ${isActive} ${button_margin}">${tab.label}</button>`)
+				.appendTo(tab_container);
+			
+			tab_element.on('click', () => this.change_match_against(tab.value));
+		});
+
+		return tab_container
+	}
+
 	async render() {
 		// Extract the selected value from "Kefiya Settings" doctype
 		const optionValue = this.kefiyaSettings.show_entries_in_payment_assignment_wizard
@@ -360,7 +360,12 @@ kefiya.tools.AssignWizardTool = class AssignWizardTool extends (
 		$('[data-fieldname="title"]').remove();
 		$('[data-original-title="Refresh"]').remove();
 		$('[data-original-title="Reload List"]').remove();
-		$('.custom-btn-group').remove()
+		$('[data-fieldname="bank_account"]').remove();
+		$('.custom-btn-group').remove();
+		$('.standard-filter-section').empty();	
+		const tab_container = await this.add_custom();
+		tab_container.appendTo('.standard-filter-section');
+		
 		
 		let rowHTML;
 		let party_value;

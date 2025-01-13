@@ -26,8 +26,10 @@
         {% endif %}
 
         {% if matchAgainst == "Purchase Invoice" %}
-        <div class="col-sm-2 ellipsis">
+        <div class="col-sm-2 ellipsis" style="white-space: normal">
           <a href="purchase-invoice/{{ name }}">{{ name }}</a>
+          <br>
+          <p>{{bill_no}}</p>
         </div>
         <div class="col-sm-2 ellipsis hidden-xs">
           {{ supplier }} 
