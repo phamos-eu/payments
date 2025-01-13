@@ -501,6 +501,9 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 
 					const paid_amount = r.message[0];
 					const payment_entry_name = r.message[1];
+					const unallocated_amount = r.message[2];
+					const outstanding_amount = r.message[3];
+					const diff = r.message[4];
 
 					vouchers.push({
 						payment_doctype: "Payment Entry",
@@ -517,7 +520,35 @@ kefiya.tools.AssignWizardRow = class AssignWizardRow {
 						},
 						callback(/* r */) {
 							// Refresh page after asignment		
-							kefiya.tools.assignWizardList.refresh();
+							// kefiya.tools.assignWizardList.refresh();
+
+							if (unallocated_amount > outstanding_amount){
+
+								$('.list-row-contain').filter(function() {
+									return $(this).find(`[data-fieldname="${invoice_name}"]`).length > 0;
+								}).remove();
+
+								$(`[data-fieldname="${bank_transaction_name}"]`).each(function() {
+									$(this).find('.data-amount').text(diff);
+								});
+							}else if(unallocated_amount == outstanding_amount){
+
+								$('.list-row-contain').filter(function() {
+									return $(this).find(`[data-fieldname="${invoice_name}"]`).length > 0;
+								}).remove();
+
+								$(`[data-fieldname="${bank_transaction_name}"]`).remove();
+							}else{
+								
+								$(`[data-fieldname="${bank_transaction_name}"]`).remove();
+								$(`[data-fieldname="${invoice_name}"]`).find('.data-amount').text(diff);
+							}
+
+							$('.list-row-contain').filter(function() {
+								return $(this).children().length === 1;
+							}).remove();
+							
+
 						},
 					});
 				},
